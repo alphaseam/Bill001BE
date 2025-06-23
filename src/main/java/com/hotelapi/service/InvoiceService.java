@@ -32,6 +32,7 @@ public class InvoiceService {
         }
 
         Bill bill = optionalBill.get();
+        
         String fileName = "Invoice_" + bill.getBillNumber() + ".pdf";
         String filePath = invoiceDir + "/" + fileName;
 
