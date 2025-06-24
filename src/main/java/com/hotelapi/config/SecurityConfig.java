@@ -14,14 +14,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**",
-                        "/swagger-ui/**",
+        return http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/invoice/download/**",  
+                    "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated())
-                .build();
+                    "/v3/api-docs/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .build();
     }
 
     @Bean
