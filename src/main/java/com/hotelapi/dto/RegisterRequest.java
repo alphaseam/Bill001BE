@@ -2,9 +2,7 @@ package com.hotelapi.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import io.swagger.v3.oas.annotations.Hidden;
 
-@Hidden
 @Data
 @Schema(description = "Request to register a new user")
 public class RegisterRequest {

@@ -3,9 +3,7 @@ package com.hotelapi.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import io.swagger.v3.oas.annotations.Hidden;
 
-@Hidden
 @Data
 @AllArgsConstructor
 @Schema(description = "Response after login attempt")
