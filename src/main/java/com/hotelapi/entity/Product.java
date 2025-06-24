@@ -21,3 +21,4 @@ public class Product {
     private Hotel hotel;
       
 }
+//need to edit
