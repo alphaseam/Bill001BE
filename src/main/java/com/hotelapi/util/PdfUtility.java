@@ -1,4 +1,4 @@
-package com.hotelapi.service;
+package com.hotelapi.util;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
