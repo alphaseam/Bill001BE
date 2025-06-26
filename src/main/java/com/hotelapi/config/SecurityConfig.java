@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity // Enables @PreAuthorize, etc.
+@EnableMethodSecurity // Enables @PreAuthorize- for roles
 public class SecurityConfig {
 
     @Bean
@@ -21,9 +21,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
+                    "/",
                     "/api/invoice/download/**",  
                     "/swagger-ui/**",
                     "/swagger-ui.html",
+                    "/api/reports/sales/monthly/product-wise",//remove later
                     "/v3/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
