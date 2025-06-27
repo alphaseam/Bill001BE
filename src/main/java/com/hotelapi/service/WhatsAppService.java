@@ -22,27 +22,29 @@ public class WhatsAppService {
 
     private final WhatsAppConfig config;
     private final WhatsAppLogRepository logRepository;
-    private final RestTemplate restTemplate = new RestTemplate(); // You may replace this with WebClient if needed
+    private final RestTemplate restTemplate = new RestTemplate(); // Can be replaced with WebClient
 
     public boolean sendMessage(WhatsAppMessageDto dto) {
+        //  Prevent duplicate message for same bill
+        if (logRepository.existsByBillIdAndStatus(dto.getBillId(), "SENT")) {
+            log.warn("WhatsApp message already sent for billId: {}", dto.getBillId());
+            return false;
+        }
+
         String apiUrl = config.getBaseUrl();
         String sender = config.getSenderId();
         String token = config.getAuthToken();
 
-        // Format the message using utility
         String formattedMessage = WhatsAppUtil.buildMessage(dto);
 
-        // Build the request body (you can adjust this based on your WhatsApp API structure)
         var requestBody = new WhatsAppApiRequest(sender, dto.getCustomerPhone(), formattedMessage);
 
-        // Set headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Send message and log
         boolean isSuccess = false;
         String errorMessage = null;
 
@@ -52,10 +54,10 @@ public class WhatsAppService {
             log.info("WhatsApp message response: {}", response.getBody());
         } catch (Exception ex) {
             errorMessage = ex.getMessage();
-            log.error("Failed to send WhatsApp message: {}", errorMessage);
+            log.error("Failed to send WhatsApp message for billId {}: {}", dto.getBillId(), errorMessage);
         }
 
-        // Log the status
+        //Log message status
         WhatsAppLog logEntry = WhatsAppLog.builder()
                 .billId(dto.getBillId())
                 .customerName(dto.getCustomerName())
@@ -67,6 +69,7 @@ public class WhatsAppService {
                 .build();
 
         logRepository.save(logEntry);
+
         return isSuccess;
     }
 
