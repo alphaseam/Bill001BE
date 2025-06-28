@@ -27,11 +27,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
+                    "/api/hotel/**",
                     "/",
-                    "/api/invoice/download/**",  
+                    "/api/invoice/download/**",
+                    "/api/reports/sales/monthly/product-wise",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/api/reports/sales/monthly/product-wise",
                     "/v3/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
