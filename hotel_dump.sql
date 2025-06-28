@@ -33,7 +33,7 @@ CREATE TABLE `bill_items` (
   PRIMARY KEY (`id`),
   KEY `FKj9o7g8krc56gf6t6f0sy4ic5p` (`bill_id`),
   CONSTRAINT `FKj9o7g8krc56gf6t6f0sy4ic5p` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `bill_items` (
 
 LOCK TABLES `bill_items` WRITE;
 /*!40000 ALTER TABLE `bill_items` DISABLE KEYS */;
-INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7);
+INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7),(15,0,'Tea',2,20,10,8),(16,0,'Coffee',1,20,20,8);
 /*!40000 ALTER TABLE `bill_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `bills` (
   PRIMARY KEY (`id`),
   KEY `FKoy9sc2dmxj2qwjeiiilf3yuxp` (`customer_id`),
   CONSTRAINT `FKoy9sc2dmxj2qwjeiiilf3yuxp` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 18:10:05.027792',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-28 11:49:01.271218',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-28 12:47:14.092192',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-28 12:59:08.657977',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-06-28 15:54:51.275619',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-06-28 16:25:05.103555',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-06-28 17:11:36.811209',5,40,7.2,42.2,NULL);
+INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 18:10:05.027792',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-28 11:49:01.271218',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-28 12:47:14.092192',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-28 12:59:08.657977',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-06-28 15:54:51.275619',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-06-28 16:25:05.103555',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-06-28 17:11:36.811209',5,40,7.2,42.2,NULL),(8,'INV-1001','2025-06-28 18:13:05.668156',5,40,7.2,42.2,NULL);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -288,4 +288,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-28 17:11:37
+-- Dump completed on 2025-06-28 18:13:06
