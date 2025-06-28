@@ -7,7 +7,7 @@ import lombok.Builder;
 @Schema(description = "DTO for WhatsApp message request")
 @Data
 @Builder
-public class WhatsAppMessageDto {
+public class WhatsAppMessageRequest {
 
     @Schema(description = "Customer's name", example = "Ravi Sharma")
     private String customerName;

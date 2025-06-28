@@ -1,6 +1,6 @@
 package com.hotelapi.util;
 
-import com.hotelapi.dto.WhatsAppMessageDto;
+import com.hotelapi.dto.WhatsAppMessageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.experimental.UtilityClass;
 
@@ -9,18 +9,18 @@ import lombok.experimental.UtilityClass;
 public class WhatsAppUtil {
 
     @Schema(description = "Builds the message to be sent over WhatsApp")
-    public static String buildMessage(WhatsAppMessageDto dto) {
+    public static String buildMessage(WhatsAppMessageRequest request) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Hello ").append(dto.getCustomerName()).append(",\n\n")
-          .append(" Your bill is ready (ID: ").append(dto.getBillId()).append(")\n");
+        sb.append("Hello ").append(request.getCustomerName()).append(",\n\n")
+          .append(" Your bill is ready (ID: ").append(request.getBillId()).append(")\n");
 
-        if (dto.getMessageContent() != null && !dto.getMessageContent().isEmpty()) {
-            sb.append(dto.getMessageContent()).append("\n");
+        if (request.getMessageContent() != null && !request.getMessageContent().isEmpty()) {
+            sb.append(request.getMessageContent()).append("\n");
         }
 
-        if (dto.getBillPdfUrl() != null && !dto.getBillPdfUrl().isEmpty()) {
-            sb.append("\n View your bill PDF: ").append(dto.getBillPdfUrl());
+        if (request.getBillPdfUrl() != null && !request.getBillPdfUrl().isEmpty()) {
+            sb.append("\n View your bill PDF: ").append(request.getBillPdfUrl());
         }
 
         sb.append("\n\nThank you for choosing our service!\n Hotel Management");
@@ -30,7 +30,7 @@ public class WhatsAppUtil {
 
     @Schema(description = "for shortlink")
     public static String shortenUrl(String url) {
-        //need to check for shot links
+        // Placeholder for URL shortener logic
         return url;
     }
 }

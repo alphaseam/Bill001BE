@@ -1,7 +1,7 @@
-//for testing purp0se
+// For testing purpose
 package com.hotelapi.controller;
 
-import com.hotelapi.dto.WhatsAppMessageDto;
+import com.hotelapi.dto.WhatsAppMessageRequest;
 import com.hotelapi.service.WhatsAppService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,8 +19,8 @@ public class WhatsAppTestController {
 
     @Operation(summary = "Test WhatsApp message send")
     @PostMapping("/send")
-    public ResponseEntity<String> sendWhatsAppMessage(@RequestBody WhatsAppMessageDto messageDto) {
-        boolean result = whatsAppService.sendMessage(messageDto);
+    public ResponseEntity<String> sendWhatsAppMessage(@RequestBody WhatsAppMessageRequest messageRequest) {
+        boolean result = whatsAppService.sendMessage(messageRequest);
         return result ?
                 ResponseEntity.ok("WhatsApp message sent successfully") :
                 ResponseEntity.status(500).body("Failed to send WhatsApp message");

@@ -1,6 +1,6 @@
 package com.hotelapi.service;
 
-import com.hotelapi.dto.WhatsAppMessageDto;
+import com.hotelapi.dto.WhatsAppMessageRequest;
 import com.hotelapi.entity.Bill;
 import com.hotelapi.entity.Customer;
 import com.hotelapi.repository.BillRepository;
@@ -38,21 +38,21 @@ public class BillService {
         String pdfUrl = null;
         try {
             pdfUrl = invoiceService.generateInvoicePdf(savedBill.getId());
-            pdfUrl = "https://yourdomain.com" + pdfUrl; //  deployed domain
+            pdfUrl = "https://yourdomain.com" + pdfUrl; // deployed domain
         } catch (Exception e) {
-            log.error("Failed to generate invoice PDF for bill ID {}: {}", savedBill.getId(), e.getMessage(), e);//logger to test
+            log.error("Failed to generate invoice PDF for bill ID {}: {}", savedBill.getId(), e.getMessage(), e);
         }
 
-        // Build WhatsApp message DTO
-        WhatsAppMessageDto dto = WhatsAppMessageDto.builder()
+        // Build WhatsApp message request
+        WhatsAppMessageRequest dto = WhatsAppMessageRequest.builder()
                 .billId(savedBill.getId())
                 .customerName(customer.getName())
-                .customerPhone(customer.getMobile())  
-                .billPdfUrl(pdfUrl)                   //  null if generation failed
+                .customerPhone(customer.getMobile())
+                .billPdfUrl(pdfUrl)
                 .messageContent("Your bill total is ₹" + savedBill.getTotal() + ".")
                 .build();
 
-        // Sending WhatsApp message 
+        // Sending WhatsApp message
         whatsAppService.sendMessage(dto);
 
         return savedBill;

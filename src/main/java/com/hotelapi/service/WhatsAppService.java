@@ -1,7 +1,7 @@
 package com.hotelapi.service;
 
 import com.hotelapi.config.WhatsAppConfig;
-import com.hotelapi.dto.WhatsAppMessageDto;
+import com.hotelapi.dto.WhatsAppMessageRequest;
 import com.hotelapi.entity.WhatsAppLog;
 import com.hotelapi.repository.WhatsAppLogRepository;
 import com.hotelapi.util.WhatsAppUtil;
@@ -24,10 +24,10 @@ public class WhatsAppService {
     private final WhatsAppLogRepository logRepository;
     private final RestTemplate restTemplate = new RestTemplate(); // Can be replaced with WebClient
 
-    public boolean sendMessage(WhatsAppMessageDto dto) {
-        //  Prevent duplicate message for same bill
-        if (logRepository.existsByBillIdAndStatus(dto.getBillId(), "SENT")) {
-            log.warn("WhatsApp message already sent for billId: {}", dto.getBillId());
+    public boolean sendMessage(WhatsAppMessageRequest request) {
+        // Prevent duplicate message for same bill
+        if (logRepository.existsByBillIdAndStatus(request.getBillId(), "SENT")) {
+            log.warn("WhatsApp message already sent for billId: {}", request.getBillId());
             return false;
         }
 
@@ -35,9 +35,9 @@ public class WhatsAppService {
         String sender = config.getSenderId();
         String token = config.getAuthToken();
 
-        String formattedMessage = WhatsAppUtil.buildMessage(dto);
+        String formattedMessage = WhatsAppUtil.buildMessage(request);
 
-        var requestBody = new WhatsAppApiRequest(sender, dto.getCustomerPhone(), formattedMessage);
+        var requestBody = new WhatsAppApiRequest(sender, request.getCustomerPhone(), formattedMessage);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -54,14 +54,14 @@ public class WhatsAppService {
             log.info("WhatsApp message response: {}", response.getBody());
         } catch (Exception ex) {
             errorMessage = ex.getMessage();
-            log.error("Failed to send WhatsApp message for billId {}: {}", dto.getBillId(), errorMessage);
+            log.error("Failed to send WhatsApp message for billId {}: {}", request.getBillId(), errorMessage);
         }
 
-        //Log message status
+        // Log message status
         WhatsAppLog logEntry = WhatsAppLog.builder()
-                .billId(dto.getBillId())
-                .customerName(dto.getCustomerName())
-                .customerPhone(dto.getCustomerPhone())
+                .billId(request.getBillId())
+                .customerName(request.getCustomerName())
+                .customerPhone(request.getCustomerPhone())
                 .message(formattedMessage)
                 .status(isSuccess ? "SENT" : "FAILED")
                 .error(errorMessage)
