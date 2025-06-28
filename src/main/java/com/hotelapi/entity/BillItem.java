@@ -33,6 +33,6 @@ public class BillItem {
     private Double total;
 
     @ManyToOne
-    @JoinColumn(name = "bill_id")
+    @JoinColumn(name = "bill_id", nullable = false)
     private Bill bill;
 }
