@@ -20,12 +20,14 @@ public class DataInitializer implements CommandLineRunner {
     private final BillItemRepository billItemRepo;
 
     @Override
-    public void run(String... args) {
-        // Insert Hotels
+    public void run(String... args) throws Exception {
+        System.out.println("Inserting sample data into database...");
+
+        //  Insert Hotel
         Hotel taj = hotelRepo.save(Hotel.builder()
                 .hotelName("Hotel Taj")
                 .ownerName("Rajeev")
-                .mobile("9999999991")
+                .mobile("9985947896")
                 .email("taj@gmail.com")
                 .gstNumber("GSTT1234")
                 .hotelType("Luxury")
@@ -34,12 +36,11 @@ public class DataInitializer implements CommandLineRunner {
                 .updatedAt(LocalDateTime.now())
                 .build());
 
-        // Insert User (admin login)
-        User admin = new User(null, "admin@taj.com", "admin123");
+        //  Insert Admin User
+        User admin = new User(null, "admin12@taj.com", "admin123");
         userRepo.save(admin);
 
-
-        // Insert Products
+        //  Insert Products
         Product tea = productRepo.save(Product.builder()
                 .name("Tea")
                 .price(10.0)
@@ -54,11 +55,10 @@ public class DataInitializer implements CommandLineRunner {
                 .hotel(taj)
                 .build());
 
-        // Insert Bill
+        // ✅ Insert Bill
         Bill bill = Bill.builder()
                 .billNumber("INV-1001")
                 .createdAt(LocalDateTime.now())
-                
                 .subtotal(40.0)
                 .tax(7.2)
                 .discount(5.0)
@@ -67,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
 
         bill = billRepo.save(bill);
 
-        // Insert Bill Items
+        //  Insert Bill Items
         BillItem item1 = BillItem.builder()
                 .itemName("Tea")
                 .quantity(2)
@@ -87,5 +87,33 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         billItemRepo.saveAll(List.of(item1, item2));
+
+        System.out.println("✅ Sample data inserted.");
+
+        //  Automatically generate .sql dump file
+        try {
+            System.out.println(" Generating SQL dump file...");
+            ProcessBuilder pb = new ProcessBuilder(
+                    "mysqldump",
+                    "-u", "root",
+                    "-proot",             
+                    "hotel_db",
+                    "-r", "hotel_dump.sql"
+            );
+
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            int exitCode = process.waitFor();
+
+            if (exitCode == 0) {
+                System.out.println("SQL dump generated: hotel_dump.sql");
+            } else {
+                System.err.println("Failed to generate SQL dump. Exit code: " + exitCode);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error while generating SQL dump: " + e.getMessage());
+        }
     }
 }
+
