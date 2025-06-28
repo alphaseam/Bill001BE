@@ -1,68 +1,68 @@
 package com.hotelapi.service;
 
-import com.hotelapi.config.WhatsAppConfig;
+import com.hotelapi.config.TwilioConfig;
 import com.hotelapi.dto.WhatsAppMessageRequest;
 import com.hotelapi.entity.WhatsAppLog;
 import com.hotelapi.repository.WhatsAppLogRepository;
 import com.hotelapi.util.WhatsAppUtil;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.RequiredArgsConstructor;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Service to send WhatsApp messages and log status")
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@Service
 public class WhatsAppService {
 
-    private final WhatsAppConfig config;
+    private final TwilioConfig config;
     private final WhatsAppLogRepository logRepository;
-    private final RestTemplate restTemplate = new RestTemplate(); // Can be replaced with WebClient
+
+    public WhatsAppService(@Qualifier("twilioConfig") TwilioConfig config, WhatsAppLogRepository logRepository) {
+        this.config = config;
+        this.logRepository = logRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        Twilio.init(config.getAccountSid(), config.getAuthToken());
+    }
 
     public boolean sendMessage(WhatsAppMessageRequest request) {
-        // Prevent duplicate message for same bill
         if (logRepository.existsByBillIdAndStatus(request.getBillId(), "SENT")) {
-            log.warn("WhatsApp message already sent for billId: {}", request.getBillId());
+            log.warn("Message already sent for bill ID {}", request.getBillId());
             return false;
         }
 
-        String apiUrl = config.getBaseUrl();
-        String sender = config.getSenderId();
-        String token = config.getAuthToken();
-
-        String formattedMessage = WhatsAppUtil.buildMessage(request);
-
-        var requestBody = new WhatsAppApiRequest(sender, request.getCustomerPhone(), formattedMessage);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
-
-        HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
+        String messageBody = WhatsAppUtil.buildMessage(request);
 
         boolean isSuccess = false;
         String errorMessage = null;
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, requestEntity, String.class);
-            isSuccess = response.getStatusCode().is2xxSuccessful();
-            log.info("WhatsApp message response: {}", response.getBody());
-        } catch (Exception ex) {
-            errorMessage = ex.getMessage();
-            log.error("Failed to send WhatsApp message for billId {}: {}", request.getBillId(), errorMessage);
+            Message message = Message.creator(
+                    new PhoneNumber("whatsapp:" + request.getCustomerPhone()),
+                    new PhoneNumber(config.getWhatsappFrom()),
+                    messageBody
+            ).create();
+
+            log.info("Twilio Message SID: {}", message.getSid());
+            isSuccess = message.getStatus() != Message.Status.FAILED;
+
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+            log.error("Twilio message send failed: {}", errorMessage);
         }
 
-        // Log message status
         WhatsAppLog logEntry = WhatsAppLog.builder()
                 .billId(request.getBillId())
                 .customerName(request.getCustomerName())
                 .customerPhone(request.getCustomerPhone())
-                .message(formattedMessage)
+                .message(messageBody)
                 .status(isSuccess ? "SENT" : "FAILED")
                 .error(errorMessage)
                 .timestamp(LocalDateTime.now())
@@ -72,12 +72,4 @@ public class WhatsAppService {
 
         return isSuccess;
     }
-
-    // Internal DTO to match WhatsApp API request structure
-    @Schema(description = "Internal DTO to structure WhatsApp API request")
-    private record WhatsAppApiRequest(
-            @Schema(description = "Sender ID") String sender,
-            @Schema(description = "Recipient number") String recipient,
-            @Schema(description = "Message content") String message
-    ) {}
 }

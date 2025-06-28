@@ -1,6 +1,13 @@
-HELP.md
-target/
+# Ignore env files (add these lines)
+.env
+.env.local
+.env.*.local
+
+# Maven wrapper
 .mvn/wrapper/maven-wrapper.jar
+
+# Target folders
+target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
