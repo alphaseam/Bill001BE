@@ -9,10 +9,6 @@ import lombok.Data;
 @Schema(description = "User registration form")
 public class RegisterForm {
 
-    @Schema(description = "Full name of the user", example = "Abhishek Mahajan", required = true)
-    @NotBlank
-    private String name;
-
     @Schema(description = "User's email address", example = "abhishek@example.com", required = true)
     @Email
     @NotBlank

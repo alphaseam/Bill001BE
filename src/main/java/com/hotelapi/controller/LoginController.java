@@ -4,15 +4,16 @@ import com.hotelapi.dto.LoginForm;
 import com.hotelapi.dto.LoginResponse;
 import com.hotelapi.dto.RegisterForm;
 import com.hotelapi.dto.RegisterResponse;
+import com.hotelapi.entity.User;
+import com.hotelapi.repository.UserRepository;
 import com.hotelapi.service.JwtService;
 
 import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,13 +27,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class LoginController {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    private final Map<String, String> registeredUsers = new ConcurrentHashMap<>();
-
-    public LoginController(JwtService jwtService) {
+    public LoginController(JwtService jwtService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.jwtService = jwtService;
-
-        registeredUsers.put("test@example.com", "password");
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "Register a new user")
@@ -42,12 +43,16 @@ public class LoginController {
     })
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterForm form) {
-        if (registeredUsers.containsKey(form.getEmail())) {
+        if (userRepository.existsByEmail(form.getEmail())) {
             return ResponseEntity.badRequest().body(
                     new RegisterResponse(false, "User already exists"));
         }
 
-        registeredUsers.put(form.getEmail(), form.getPassword());
+        User user = new User();
+        user.setEmail(form.getEmail());
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        userRepository.save(user);
+
         return ResponseEntity.ok(new RegisterResponse(true, "Registration successful"));
     }
 
@@ -58,14 +63,17 @@ public class LoginController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginForm loginForm) {
-        String storedPassword = registeredUsers.get(loginForm.getEmail());
+        Optional<User> userOptional = userRepository.findByEmail(loginForm.getEmail());
 
-        if (storedPassword != null && storedPassword.equals(loginForm.getPassword())) {
-            String accessToken = jwtService.generateAccessToken(loginForm.getEmail());
-            String refreshToken = jwtService.generateRefreshToken(loginForm.getEmail());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
+                String accessToken = jwtService.generateAccessToken(user.getEmail());
+                String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
-            return ResponseEntity.ok(new LoginResponse(
-                    true, "Login successful", accessToken, refreshToken));
+                return ResponseEntity.ok(new LoginResponse(
+                        true, "Login successful", accessToken, refreshToken));
+            }
         }
 
         return ResponseEntity.status(401).body(new LoginResponse(

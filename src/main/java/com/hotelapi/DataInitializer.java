@@ -3,15 +3,20 @@ package com.hotelapi;
 import com.hotelapi.entity.*;
 import com.hotelapi.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     private final HotelRepository hotelRepo;
     private final UserRepository userRepo;
@@ -21,41 +26,63 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Inserting sample data into database...");
+        log.info("Inserting sample data...");
 
-        //  Insert Hotel
-        Hotel taj = hotelRepo.save(Hotel.builder()
-                .hotelName("Hotel Taj")
-                .ownerName("Rajeev")
-                .mobile("9985947896")
-                .email("taj@gmail.com")
-                .gstNumber("GSTT1234")
-                .hotelType("Luxury")
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build());
+        // Check & insert Hotel
+        Hotel taj = hotelRepo.findByMobile("9985947896").orElseGet(() -> {
+            Hotel newHotel = Hotel.builder()
+                    .hotelName("Hotel Taj")
+                    .ownerName("Rajeev")
+                    .mobile("9985947896")
+                    .email("taj@gmail.com")
+                    .gstNumber("GSTT1234")
+                    .hotelType("Luxury")
+                    .isActive(true)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            log.info("Inserted Hotel Taj");
+            return hotelRepo.save(newHotel);
+        });
 
-        //  Insert Admin User
-        User admin = new User(null, "admin12@taj.com", "admin123");
-        userRepo.save(admin);
+        // Check & insert Admin User
+        userRepo.findByEmail("admin12@taj.com").ifPresentOrElse(
+                user -> log.info("Admin user already exists."),
+                () -> {
+                    userRepo.save(new User(null, "admin12@taj.com", "admin123"));
+                    log.info("Inserted admin user");
+                }
+        );
 
-        //  Insert Products
-        Product tea = productRepo.save(Product.builder()
-                .name("Tea")
-                .price(10.0)
-                .category("Beverage")
-                .hotel(taj)
-                .build());
+        // Check & insert Tea Product
+        productRepo.findByNameAndHotel("Tea", taj).ifPresentOrElse(
+                p -> log.info("Product 'Tea' already exists."),
+                () -> {
+                    productRepo.save(Product.builder()
+                            .name("Tea")
+                            .price(10.0)
+                            .category("Beverage")
+                            .hotel(taj)
+                            .build());
+                    log.info("Inserted product 'Tea'");
+                }
+        );
 
-        Product coffee = productRepo.save(Product.builder()
-                .name("Coffee")
-                .price(20.0)
-                .category("Beverage")
-                .hotel(taj)
-                .build());
+        // Check & insert Coffee Product
+        productRepo.findByNameAndHotel("Coffee", taj).ifPresentOrElse(
+                p -> log.info("Product 'Coffee' already exists."),
+                () -> {
+                    productRepo.save(Product.builder()
+                            .name("Coffee")
+                            .price(20.0)
+                            .category("Beverage")
+                            .hotel(taj)
+                            .build());
+                    log.info("Inserted product 'Coffee'");
+                }
+        );
 
-        // ✅ Insert Bill
+        // Always insert a new bill and its items (optional: add logic if needed)
         Bill bill = Bill.builder()
                 .billNumber("INV-1001")
                 .createdAt(LocalDateTime.now())
@@ -64,10 +91,9 @@ public class DataInitializer implements CommandLineRunner {
                 .discount(5.0)
                 .total(42.2)
                 .build();
-
         bill = billRepo.save(bill);
+        log.info("Inserted bill {}", bill.getBillNumber());
 
-        //  Insert Bill Items
         BillItem item1 = BillItem.builder()
                 .itemName("Tea")
                 .quantity(2)
@@ -87,33 +113,28 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         billItemRepo.saveAll(List.of(item1, item2));
+        log.info("Inserted bill items");
 
-        System.out.println("✅ Sample data inserted.");
-
-        //  Automatically generate .sql dump file
+        // SQL Dump
         try {
-            System.out.println(" Generating SQL dump file...");
+            log.info("Generating SQL dump...");
             ProcessBuilder pb = new ProcessBuilder(
                     "mysqldump",
                     "-u", "root",
-                    "-proot",             
+                    "-proot",
                     "hotel_db",
                     "-r", "hotel_dump.sql"
             );
-
             pb.redirectErrorStream(true);
             Process process = pb.start();
             int exitCode = process.waitFor();
-
             if (exitCode == 0) {
-                System.out.println("SQL dump generated: hotel_dump.sql");
+                log.info("SQL dump generated: hotel_dump.sql");
             } else {
-                System.err.println("Failed to generate SQL dump. Exit code: " + exitCode);
+                log.error("Failed to generate SQL dump. Exit code: {}", exitCode);
             }
-
         } catch (Exception e) {
-            System.err.println("Error while generating SQL dump: " + e.getMessage());
+            log.error("Exception during SQL dump: {}", e.getMessage(), e);
         }
     }
 }
-

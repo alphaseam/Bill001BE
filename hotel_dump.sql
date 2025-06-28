@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
 -- Host: localhost    Database: hotel_db
 -- ------------------------------------------------------
--- Server version	8.0.36
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -33,7 +33,7 @@ CREATE TABLE `bill_items` (
   PRIMARY KEY (`id`),
   KEY `FKj9o7g8krc56gf6t6f0sy4ic5p` (`bill_id`),
   CONSTRAINT `FKj9o7g8krc56gf6t6f0sy4ic5p` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `bill_items` (
 
 LOCK TABLES `bill_items` WRITE;
 /*!40000 ALTER TABLE `bill_items` DISABLE KEYS */;
-INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2);
+INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4);
 /*!40000 ALTER TABLE `bill_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `bills` (
   PRIMARY KEY (`id`),
   KEY `FKoy9sc2dmxj2qwjeiiilf3yuxp` (`customer_id`),
   CONSTRAINT `FKoy9sc2dmxj2qwjeiiilf3yuxp` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 15:00:03.912903',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-27 18:50:52.853142',5,40,7.2,42.2,NULL);
+INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 18:10:05.027792',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-28 11:49:01.271218',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-28 12:47:14.092192',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-28 12:59:08.657977',5,40,7.2,42.2,NULL);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -117,15 +117,15 @@ CREATE TABLE `hotels` (
   `created_at` datetime(6) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `gst_number` varchar(255) DEFAULT NULL,
-  `hotel_name` varchar(255) NOT NULL,
+  `hotel_name` varchar(255) DEFAULT NULL,
   `hotel_type` varchar(255) DEFAULT NULL,
   `is_active` bit(1) DEFAULT NULL,
-  `mobile` varchar(255) NOT NULL,
+  `mobile` varchar(255) DEFAULT NULL,
   `owner_name` varchar(255) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`hotel_id`),
   UNIQUE KEY `UK497hd03hhoy0rnc18gqaibe7e` (`mobile`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `hotels` (
 
 LOCK TABLES `hotels` WRITE;
 /*!40000 ALTER TABLE `hotels` DISABLE KEYS */;
-INSERT INTO `hotels` VALUES (2,'456 MG Road, Pune','2025-06-24 16:04:32.448908','john@grand.com','GST99999','Grand Palace','4-star',_binary '\0','9876543896','John','2025-06-24 16:04:32.448908'),(3,'123 Main Street, Pune','2025-06-26 12:27:11.557501','john@grand.com','GST12345','Grand ','5-star',_binary '','9876543265','John','2025-06-26 12:27:11.557501'),(4,'Goa Beach Road','2025-06-27 09:54:04.471624','info@seaview.com','29ABCDE1234F1Z5','Sea View Resort','RESORT',_binary '','9876543210','mahesh','2025-06-27 09:54:04.471624'),(5,'Pune','2025-06-27 10:02:05.941704','demo@hotel.com','29ABCDEF1234Z9','Demo Inn','INN',_binary '','1234567890','mahesh','2025-06-27 10:02:05.941704'),(6,'Pune','2025-06-27 14:21:29.154213','lemon@hotel.com','29ABCDEF1235Z6','Lemon Tree','INN',_binary '','3214569875','Ambani','2025-06-27 14:21:29.155298'),(7,NULL,'2025-06-27 15:00:03.740573','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9999999991','Rajeev','2025-06-27 15:00:03.740573'),(9,NULL,'2025-06-27 18:47:17.877886','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985986325','Rajeev','2025-06-27 18:47:17.877886'),(11,NULL,'2025-06-27 18:50:52.714026','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-27 18:50:52.714026');
+INSERT INTO `hotels` VALUES (1,NULL,'2025-06-27 18:10:04.806414','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9999999991','Rajeev','2025-06-27 18:10:04.806414'),(2,NULL,'2025-06-28 11:49:00.891317','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-28 11:49:00.891317');
 /*!40000 ALTER TABLE `hotels` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -152,14 +152,10 @@ CREATE TABLE `orders` (
   `status` varchar(255) NOT NULL,
   `total_price` double NOT NULL,
   `product_id` bigint NOT NULL,
-  `customer_name` varchar(255) DEFAULT NULL,
-  `order_date` date DEFAULT NULL,
-  `product_name` varchar(255) DEFAULT NULL,
-  `total_amount` double DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKkp5k52qtiygd8jkag4hayd0qg` (`product_id`),
   CONSTRAINT `FKkp5k52qtiygd8jkag4hayd0qg` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,7 +164,6 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (1,'2025-06-27 00:00:00.000000',2,'COMPLETED',100000,2,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -188,7 +183,7 @@ CREATE TABLE `products` (
   PRIMARY KEY (`id`),
   KEY `FK4kcfnm4xqk3rkrjpxaqx2rl7p` (`hotel_id`),
   CONSTRAINT `FK4kcfnm4xqk3rkrjpxaqx2rl7p` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`hotel_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -197,7 +192,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'Electronics','Laptop',1000,NULL),(2,'Electronics','Laptop',50000,NULL),(3,'Beverage','Tea',10,7),(4,'Beverage','Coffee',20,7),(5,'Beverage','Tea',10,11),(6,'Beverage','Coffee',20,11);
+INSERT INTO `products` VALUES (1,'Beverage','Tea',10,1),(2,'Beverage','Coffee',20,1),(3,'Beverage','Tea',10,2),(4,'Beverage','Coffee',20,2);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -251,7 +246,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin@taj.com','admin123'),(3,'admin12@taj.com','admin123');
+INSERT INTO `users` VALUES (1,'admin@taj.com','admin123'),(2,'admin12@taj.com','admin123'),(3,'abhishek@example.com','$2a$10$46knH.2tRgaa0ESb88Lq6O84ZKA7iUjNDWjaTYFlBKgv9irVFeU7W');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -293,4 +288,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-27 18:50:53
+-- Dump completed on 2025-06-28 12:59:09
