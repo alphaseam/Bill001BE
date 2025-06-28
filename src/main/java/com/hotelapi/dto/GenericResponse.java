@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Standard API response wrapper")
-public class ResponseDto<T> {
+public class GenericResponse<T> {
 
     @Schema(description = "Response message", example = "Request successful")
     private String message;
@@ -18,16 +18,16 @@ public class ResponseDto<T> {
     @Schema(description = "Optional payload data")
     private T data;
 
-    public ResponseDto(String message, boolean success) {
+    public GenericResponse(String message, boolean success) {
         this.message = message;
         this.success = success;
     }
 
-    public static <T> ResponseDto<T> ok(String message, T data) {
-        return new ResponseDto<>(message, true, data);
+    public static <T> GenericResponse<T> ok(String message, T data) {
+        return new GenericResponse<>(message, true, data);
     }
 
-    public static <T> ResponseDto<T> fail(String message) {
-        return new ResponseDto<>(message, false, null);
+    public static <T> GenericResponse<T> fail(String message) {
+        return new GenericResponse<>(message, false, null);
     }
 }

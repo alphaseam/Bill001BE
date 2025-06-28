@@ -1,7 +1,7 @@
 package com.hotelapi.controller;
 
-import com.hotelapi.dto.ProductSalesReportDto;
-import com.hotelapi.dto.ResponseDto;
+import com.hotelapi.dto.ProductSalesReportResponse;
+import com.hotelapi.dto.GenericResponse;
 import com.hotelapi.service.SalesReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +23,7 @@ public class SalesReportController {
     @Operation(summary = "Get monthly product-wise sales report", description = "Accessible to ADMIN and MANAGER roles only")
     @GetMapping("/product-wise")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseDto<List<ProductSalesReportDto>> getMonthlyReport(
+    public GenericResponse<List<ProductSalesReportResponse>> getMonthlyReport(
             @Parameter(description = "Month (1-12)", example = "6")
             @RequestParam Integer month,
 

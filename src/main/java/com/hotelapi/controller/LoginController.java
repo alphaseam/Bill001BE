@@ -1,8 +1,8 @@
 package com.hotelapi.controller;
 
-import com.hotelapi.dto.LoginForm;
+import com.hotelapi.dto.LoginRequest;
 import com.hotelapi.dto.LoginResponse;
-import com.hotelapi.dto.RegisterForm;
+import com.hotelapi.dto.RegisterRequest;
 import com.hotelapi.dto.RegisterResponse;
 import com.hotelapi.entity.User;
 import com.hotelapi.repository.UserRepository;
@@ -42,7 +42,7 @@ public class LoginController {
         @ApiResponse(responseCode = "400", description = "User already exists")
     })
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterForm form) {
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest form) {
         if (userRepository.existsByEmail(form.getEmail())) {
             return ResponseEntity.badRequest().body(
                     new RegisterResponse(false, "User already exists"));
@@ -62,12 +62,12 @@ public class LoginController {
         @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginForm loginForm) {
-        Optional<User> userOptional = userRepository.findByEmail(loginForm.getEmail());
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if (passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 String accessToken = jwtService.generateAccessToken(user.getEmail());
                 String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 

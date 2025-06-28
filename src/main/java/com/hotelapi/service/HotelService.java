@@ -3,8 +3,8 @@ package com.hotelapi.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hotelapi.dto.HotelDto;
-import com.hotelapi.dto.ResponseDto;
+import com.hotelapi.dto.HotelResponse;
+import com.hotelapi.dto.GenericResponse;
 import com.hotelapi.entity.Hotel;
 import com.hotelapi.repository.HotelRepository;
 
@@ -17,9 +17,9 @@ public class HotelService {
     @Autowired
     private HotelRepository hotelRepository;
 
-    public ResponseDto saveHotel(HotelDto dto) {
+    public GenericResponse saveHotel(HotelResponse dto) {
         if (hotelRepository.existsByMobile(dto.getMobile())) {
-            return new ResponseDto("Mobile number already exists", false);
+            return new GenericResponse("Mobile number already exists", false);
         }
 
         Hotel hotel = new Hotel();
@@ -35,20 +35,20 @@ public class HotelService {
         hotel.setUpdatedAt(LocalDateTime.now());
 
         hotelRepository.save(hotel);
-        return new ResponseDto("Hotel saved successfully", true);
+        return new GenericResponse("Hotel saved successfully", true);
     }
 
-    public ResponseDto updateHotel(Long id, HotelDto dto) {
+    public GenericResponse updateHotel(Long id, HotelResponse dto) {
         Optional<Hotel> optionalHotel = hotelRepository.findById(id);
         if (optionalHotel.isEmpty()) {
-            return new ResponseDto("Hotel not found", false);
+            return new GenericResponse("Hotel not found", false);
         }
 
         Hotel hotel = optionalHotel.get();
 
         if (!hotel.getMobile().equals(dto.getMobile()) &&
                 hotelRepository.existsByMobile(dto.getMobile())) {
-            return new ResponseDto("Mobile number already exists", false);
+            return new GenericResponse("Mobile number already exists", false);
         }
 
         hotel.setHotelName(dto.getHotelName());
@@ -62,6 +62,6 @@ public class HotelService {
         hotel.setUpdatedAt(LocalDateTime.now());
 
         hotelRepository.save(hotel);
-        return new ResponseDto("Hotel updated successfully", true);
+        return new GenericResponse("Hotel updated successfully", true);
     }
 }

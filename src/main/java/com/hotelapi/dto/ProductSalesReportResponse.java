@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Monthly product sales summary")
-public class ProductSalesReportDto {
+public class ProductSalesReportResponse {
 
     @Schema(description = "Product ID", example = "101")
     private Long productId;

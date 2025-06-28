@@ -1,6 +1,6 @@
 package com.hotelapi.service;
 
-import com.hotelapi.dto.LoginForm;
+import com.hotelapi.dto.LoginRequest;
 import com.hotelapi.dto.LoginResponse;
 import com.hotelapi.dto.RegisterRequest;
 import com.hotelapi.entity.User;
@@ -29,11 +29,11 @@ public class AuthService {
         return "User registered successfully";
     }
 
-    public LoginResponse login(LoginForm loginForm) {
-        var user = userRepository.findByEmail(loginForm.getEmail())
+    public LoginResponse login(LoginRequest loginRequest) {
+        var user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        if (!passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
 

@@ -1,6 +1,6 @@
 package com.hotelapi.repository;
 
-import com.hotelapi.dto.ProductSalesReportDto;
+import com.hotelapi.dto.ProductSalesReportResponse;
 import com.hotelapi.entity.Order;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface OrderRepository extends CrudRepository<Order, Long> {
 
     @Query("""
-        SELECT new com.hotelapi.dto.ProductSalesReportDto(
+        SELECT new com.hotelapi.dto.ProductSalesReportResponse(
             o.product.id,
             o.product.name,
             SUM(o.quantity),
@@ -26,7 +26,7 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
           AND o.status = 'COMPLETED'
         GROUP BY o.product.id, o.product.name, o.product.category
     """)
-    List<ProductSalesReportDto> getMonthlyProductSales(
+    List<ProductSalesReportResponse> getMonthlyProductSales(
         @Param("month") int month,
         @Param("year") int year
     );

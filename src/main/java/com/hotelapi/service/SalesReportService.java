@@ -1,7 +1,7 @@
 package com.hotelapi.service;
 
-import com.hotelapi.dto.ProductSalesReportDto;
-import com.hotelapi.dto.ResponseDto;
+import com.hotelapi.dto.ProductSalesReportResponse;
+import com.hotelapi.dto.GenericResponse;
 import com.hotelapi.exception.BadRequestException;
 import com.hotelapi.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class SalesReportService {
 
     private final OrderRepository orderRepository;
 
-    public ResponseDto<List<ProductSalesReportDto>> getMonthlyProductSalesReport(Integer month, Integer year) {
+    public GenericResponse<List<ProductSalesReportResponse>> getMonthlyProductSalesReport(Integer month, Integer year) {
 
         if (month == null || year == null) {
             throw new BadRequestException("Both 'month' and 'year' are required.");
@@ -25,8 +25,8 @@ public class SalesReportService {
             throw new BadRequestException("Month must be between 1 and 12.");
         }
 
-        List<ProductSalesReportDto> reportList = orderRepository.getMonthlyProductSales(month, year);
+        List<ProductSalesReportResponse> reportList = orderRepository.getMonthlyProductSales(month, year);
 
-        return new ResponseDto<>("Product-wise monthly sales report generated", true, reportList);
+        return new GenericResponse<>("Product-wise monthly sales report generated", true, reportList);
     }
 }
