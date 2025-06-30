@@ -1,6 +1,6 @@
 package com.hotelapi;
 
-import com.hotelapi.dto.LoginForm;
+import com.hotelapi.dto.LoginRequest;
 import com.hotelapi.dto.LoginResponse;
 import com.hotelapi.dto.RegisterRequest;
 import com.hotelapi.entity.User;
@@ -36,14 +36,14 @@ public class AuthServiceTest {
     private JwtService jwtService;
 
     private User sampleUser;
-    private LoginForm loginForm;
+    private LoginRequest loginForm;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         sampleUser = new User(1L, "test@example.com", "encodedPassword");
 
-        loginForm = new LoginForm();
+        loginForm = new LoginRequest();
         loginForm.setEmail("test@example.com");
         loginForm.setPassword("password");
     }
