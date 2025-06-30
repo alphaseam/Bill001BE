@@ -1,7 +1,7 @@
 package com.hotelapi.exception;
 
 /**
- * Thrown when input validation fails during bill creation or update.
+ * Thrown when input validation fails during entity creation or update.
  */
 public class InvalidInputException extends RuntimeException {
 

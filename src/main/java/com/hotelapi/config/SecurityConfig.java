@@ -21,19 +21,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    DaoAuthenticationProvider authProvider) throws Exception {
+                                                   DaoAuthenticationProvider authProvider) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/hotel/**",
-                    "/",
+                    "/api/products/**",
                     "/api/invoice/download/**",
                     "/api/reports/sales/monthly/product-wise",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/" // root
                 ).permitAll()
                 .anyRequest().authenticated()
             )

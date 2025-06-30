@@ -9,6 +9,7 @@ import com.hotelapi.repository.*;
 import com.hotelapi.service.BillService;
 import com.hotelapi.service.InvoiceService;
 import com.hotelapi.service.WhatsAppService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class BillServiceImpl implements BillService {
             subtotal += itemTotal;
 
             billItems.add(BillItem.builder()
-                    .itemName(product.getName())
+                    .itemName(product.getProductName())  
                     .quantity(itemDto.getQuantity())
                     .unitPrice(itemDto.getPrice())
                     .discount(0.0)
@@ -66,7 +67,7 @@ public class BillServiceImpl implements BillService {
                     .build());
         }
 
-        double tax = subtotal * 0.12;
+        double tax = subtotal * 0.12; // 12% tax example
         double discount = dto.getDiscount() != null ? dto.getDiscount() : 0.0;
         double total = subtotal + tax - discount;
 
@@ -81,11 +82,15 @@ public class BillServiceImpl implements BillService {
                 .total(total)
                 .build();
 
+        // link bill items back to this bill
         billItems.forEach(item -> item.setBill(bill));
 
         return createBillWithNotification(bill);
     }
 
+    /**
+     * Save bill and optionally notify via WhatsApp
+     */
     public Bill createBillWithNotification(Bill bill) {
         Bill savedBill = billRepository.save(bill);
 
@@ -142,13 +147,13 @@ public class BillServiceImpl implements BillService {
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Bill not found with ID: " + id));
 
-        // Update only non-null fields
+        // update only if present in DTO
         if (dto.getDiscount() != null) existingBill.setDiscount(dto.getDiscount());
         if (dto.getSubtotal() != null) existingBill.setSubtotal(dto.getSubtotal());
         if (dto.getTax() != null) existingBill.setTax(dto.getTax());
         if (dto.getTotal() != null) existingBill.setTotal(dto.getTotal());
 
-        // Not updating items or customer for now as it's PATCH
+        // PATCH does not update items or customer
         return billRepository.save(existingBill);
     }
 

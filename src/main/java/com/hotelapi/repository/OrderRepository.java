@@ -15,7 +15,7 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Query("""
         SELECT new com.hotelapi.dto.ProductSalesReportResponse(
             o.product.id,
-            o.product.name,
+            o.product.productName,
             SUM(o.quantity),
             SUM(o.totalPrice),
             o.product.category
@@ -24,7 +24,7 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
         WHERE MONTH(o.createdAt) = :month
           AND YEAR(o.createdAt) = :year
           AND o.status = 'COMPLETED'
-        GROUP BY o.product.id, o.product.name, o.product.category
+        GROUP BY o.product.id, o.product.productName, o.product.category
     """)
     List<ProductSalesReportResponse> getMonthlyProductSales(
         @Param("month") int month,

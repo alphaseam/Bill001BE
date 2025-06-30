@@ -54,13 +54,16 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         // Check & insert Tea Product
-        productRepo.findByNameAndHotel("Tea", taj).ifPresentOrElse(
+        productRepo.findByProductNameAndHotel("Tea", taj).ifPresentOrElse(
                 p -> log.info("Product 'Tea' already exists."),
                 () -> {
                     productRepo.save(Product.builder()
-                            .name("Tea")
+                            .productName("Tea")
+                            .productCode("TEA001")
                             .price(10.0)
                             .category("Beverage")
+                            .quantity(100)
+                            .isActive(true)
                             .hotel(taj)
                             .build());
                     log.info("Inserted product 'Tea'");
@@ -68,20 +71,23 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         // Check & insert Coffee Product
-        productRepo.findByNameAndHotel("Coffee", taj).ifPresentOrElse(
+        productRepo.findByProductNameAndHotel("Coffee", taj).ifPresentOrElse(
                 p -> log.info("Product 'Coffee' already exists."),
                 () -> {
                     productRepo.save(Product.builder()
-                            .name("Coffee")
+                            .productName("Coffee")
+                            .productCode("COF001")
                             .price(20.0)
                             .category("Beverage")
+                            .quantity(100)
+                            .isActive(true)
                             .hotel(taj)
                             .build());
                     log.info("Inserted product 'Coffee'");
                 }
         );
 
-        // Always insert a new bill and its items (optional: add logic if needed)
+        // Always insert a new bill and its items
         Bill bill = Bill.builder()
                 .billNumber("INV-1001")
                 .createdAt(LocalDateTime.now())

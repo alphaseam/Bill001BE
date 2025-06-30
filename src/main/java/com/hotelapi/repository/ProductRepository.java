@@ -1,17 +1,15 @@
 package com.hotelapi.repository;
 
-import java.util.Optional;
+import com.hotelapi.entity.Hotel;
+import com.hotelapi.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.hotelapi.entity.Hotel;
-import com.hotelapi.entity.Product;
-
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findByNameAndHotel(String name, Hotel hotel);
+    Optional<Product> findByProductNameAndHotel(String productName, Hotel hotel);
 
-
+    Optional<Product> findByProductCodeAndHotel(String productCode, Hotel hotel);
 }
-
