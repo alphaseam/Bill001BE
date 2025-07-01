@@ -6,6 +6,7 @@ import com.hotelapi.entity.Hotel;
 import com.hotelapi.repository.HotelRepository;
 import com.hotelapi.service.HotelService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -38,6 +39,7 @@ class HotelServiceTest {
         sampleDto.setIsActive(true);
     }
 
+    @DisplayName("Test case for Hotel saved successfully")
     @Test
     void testSaveHotel_Success() {
         when(hotelRepository.existsByMobile("9876543210")).thenReturn(false);
@@ -49,6 +51,7 @@ class HotelServiceTest {
         verify(hotelRepository).save(any(Hotel.class));
     }
 
+    @DisplayName("Test case for Adding Duplicate Entry")
     @Test
     void testSaveHotel_DuplicateMobile() {
         when(hotelRepository.existsByMobile("9876543210")).thenReturn(true);
@@ -61,6 +64,7 @@ class HotelServiceTest {
         verify(hotelRepository, never()).save(any());
     }
 
+    @DisplayName("Test case for Hotel updated successfully")
     @Test
     void testUpdateHotel_Success() {
         Hotel hotel = new Hotel();

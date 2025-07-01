@@ -140,6 +140,7 @@ class InvoiceServiceTest {
 
     @Test
     void testCustomerNameInBillEntity() {
+
         assertEquals("Test Customer", mockBill.getCustomer().getName());
     }
 
