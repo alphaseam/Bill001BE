@@ -1,6 +1,8 @@
 package com.hotelapi.controller;
 
 import com.hotelapi.dto.BillDto;
+import com.hotelapi.dto.MobileBillRequest;
+import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.entity.Bill;
 import com.hotelapi.service.BillService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +29,16 @@ public class BillController {
     public ResponseEntity<Bill> createBill(@RequestBody BillDto billDto) {
         Bill created = billService.createBill(billDto);
         return ResponseEntity.ok(created);
+    }
+
+    /**
+     * Mobile Bill Creation Endpoint
+     */
+    @PostMapping("/mobile")
+    @Operation(summary = "Create a bill for mobile users")
+    public ResponseEntity<MobileBillResponse> createMobileBill(@RequestBody MobileBillRequest request) {
+        MobileBillResponse response = billService.createMobileBill(request);
+        return ResponseEntity.ok(response);
     }
 
     /**

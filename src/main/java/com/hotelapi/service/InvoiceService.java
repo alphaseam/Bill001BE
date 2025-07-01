@@ -17,12 +17,14 @@ import java.util.Optional;
 public class InvoiceService {
 
     private final BillRepository billRepository;
+    private final String invoiceDir;
 
-    @Value("${invoice.output.directory:invoices}")
-    private String invoiceDir;
-
-    public InvoiceService(BillRepository billRepository) {
+    public InvoiceService(
+            BillRepository billRepository,
+            @Value("${invoice.output.directory:invoices}") String invoiceDir
+    ) {
         this.billRepository = billRepository;
+        this.invoiceDir = invoiceDir;
     }
 
     public String generateInvoicePdf(Long billId) throws Exception {
@@ -32,7 +34,7 @@ public class InvoiceService {
         }
 
         Bill bill = optionalBill.get();
-        
+
         String fileName = "Invoice_" + bill.getBillNumber() + ".pdf";
         String filePath = invoiceDir + "/" + fileName;
 

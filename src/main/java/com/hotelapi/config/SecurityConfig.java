@@ -16,13 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity // Enables @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   DaoAuthenticationProvider authProvider) throws Exception {
-        return http
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
             .authorizeHttpRequests(auth -> auth
@@ -32,15 +31,18 @@ public class SecurityConfig {
                     "/api/products/**",
                     "/api/invoice/download/**",
                     "/api/reports/sales/monthly/product-wise",
+                    "/api/bill/mobile",
+                    "/api/bill/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
-                    "/" // root
+                    "/"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .authenticationProvider(authProvider)
-            .build();
+            .httpBasic();
+
+        return http.build();
     }
 
     @Bean

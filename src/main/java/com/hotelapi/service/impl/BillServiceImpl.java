@@ -2,6 +2,8 @@ package com.hotelapi.service.impl;
 
 import com.hotelapi.dto.BillDto;
 import com.hotelapi.dto.BillItemDto;
+import com.hotelapi.dto.MobileBillRequest;
+import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.dto.WhatsAppMessageRequest;
 import com.hotelapi.entity.*;
 import com.hotelapi.exception.*;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +62,7 @@ public class BillServiceImpl implements BillService {
             subtotal += itemTotal;
 
             billItems.add(BillItem.builder()
-                    .itemName(product.getProductName())  
+                    .itemName(product.getProductName())
                     .quantity(itemDto.getQuantity())
                     .unitPrice(itemDto.getPrice())
                     .discount(0.0)
@@ -67,7 +70,7 @@ public class BillServiceImpl implements BillService {
                     .build());
         }
 
-        double tax = subtotal * 0.12; // 12% tax example
+        double tax = subtotal * 0.12; // 12% tax ex...
         double discount = dto.getDiscount() != null ? dto.getDiscount() : 0.0;
         double total = subtotal + tax - discount;
 
@@ -82,16 +85,13 @@ public class BillServiceImpl implements BillService {
                 .total(total)
                 .build();
 
-        // link bill items back to this bill
         billItems.forEach(item -> item.setBill(bill));
 
         return createBillWithNotification(bill);
     }
 
-    /**
-     * Save bill and optionally notify via WhatsApp
-     */
-    public Bill createBillWithNotification(Bill bill) {
+    // Save bill and optionally notify via WhatsApp
+        public Bill createBillWithNotification(Bill bill) {
         Bill savedBill = billRepository.save(bill);
 
         Customer customer = savedBill.getCustomer();
@@ -147,13 +147,11 @@ public class BillServiceImpl implements BillService {
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Bill not found with ID: " + id));
 
-        // update only if present in DTO
         if (dto.getDiscount() != null) existingBill.setDiscount(dto.getDiscount());
         if (dto.getSubtotal() != null) existingBill.setSubtotal(dto.getSubtotal());
         if (dto.getTax() != null) existingBill.setTax(dto.getTax());
         if (dto.getTotal() != null) existingBill.setTotal(dto.getTotal());
 
-        // PATCH does not update items or customer
         return billRepository.save(existingBill);
     }
 
@@ -168,4 +166,96 @@ public class BillServiceImpl implements BillService {
 
         billRepository.delete(bill);
     }
+
+   
+     // Mobile Bill Creation for Mobile App
+    @Override
+    @Transactional
+    public MobileBillResponse createMobileBill(MobileBillRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new InvalidInputException("At least one item is required to create a bill.");
+        }
+
+        if (request.getCustomerName() == null || request.getCustomerName().isBlank()) {
+            throw new InvalidInputException("Customer name is required.");
+        }
+
+        if (request.getMobileNumber() == null || request.getMobileNumber().isBlank()) {
+            throw new InvalidInputException("Customer mobile number is required.");
+        }
+
+        // prepare customer
+        Customer customer = customerRepository.findByMobile(request.getMobileNumber())
+                .orElseGet(() -> Customer.builder()
+                        .name(request.getCustomerName())
+                        .mobile(request.getMobileNumber())
+                        .build());
+
+        List<BillItem> billItems = new ArrayList<>();
+        double subtotal = 0;
+
+        for (MobileBillRequest.Item item : request.getItems()) {
+            if (item.getQuantity() <= 0) {
+                throw new InvalidInputException("Quantity must be positive for product: " + item.getProductName());
+            }
+
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new InvalidInputException("Product not found with ID: " + item.getProductId()));
+
+            double unitPrice = item.getUnitPrice();
+            double discount = item.getDiscount() != null ? item.getDiscount() : 0.0;
+            double itemTotal = (item.getQuantity() * unitPrice) - discount;
+            subtotal += itemTotal;
+
+            billItems.add(BillItem.builder()
+                    .itemName(product.getProductName())
+                    .quantity(item.getQuantity())
+                    .unitPrice(unitPrice)
+                    .discount(discount)
+                    .total(itemTotal)
+                    .build());
+        }
+
+        double tax = subtotal * 0.12;
+        double total = subtotal + tax;
+
+        Bill bill = Bill.builder()
+                .billNumber("MBL-" + System.currentTimeMillis())
+                .createdAt(LocalDateTime.now())
+                .customer(customer)
+                .items(billItems)
+                .subtotal(subtotal)
+                .tax(tax)
+                .discount(0.0)
+                .total(total)
+                .build();
+
+        billItems.forEach(item -> item.setBill(bill));
+
+        Bill savedBill = billRepository.save(bill);
+
+        if (customer.getId() == null) {
+            customerRepository.save(customer);
+        }
+
+        // build response
+        List<MobileBillResponse.ItemSummary> itemSummaries = new ArrayList<>();
+        for (BillItem bi : billItems) {
+            MobileBillResponse.ItemSummary summary = new MobileBillResponse.ItemSummary();
+            summary.setProductName(bi.getItemName());
+            summary.setQuantity(bi.getQuantity());
+            summary.setTotal(bi.getTotal());
+            itemSummaries.add(summary);
+        }
+
+        MobileBillResponse response = new MobileBillResponse();
+        response.setMessage("Bill created successfully");
+        response.setBillId(savedBill.getId());
+        response.setTotalAmount(savedBill.getTotal());
+        response.setBillDate(LocalDate.now());
+        response.setItems(itemSummaries);
+
+        return response;
+    }
+
 }

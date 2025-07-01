@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 9.3.0, for Win64 (x86_64)
 --
 -- Host: localhost    Database: hotel_db
 -- ------------------------------------------------------
--- Server version	8.0.42
+-- Server version	9.3.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,11 +29,11 @@ CREATE TABLE `bill_items` (
   `quantity` int DEFAULT NULL,
   `total` double DEFAULT NULL,
   `unit_price` double DEFAULT NULL,
-  `bill_id` bigint DEFAULT NULL,
+  `bill_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FKj9o7g8krc56gf6t6f0sy4ic5p` (`bill_id`),
   CONSTRAINT `FKj9o7g8krc56gf6t6f0sy4ic5p` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `bill_items` (
 
 LOCK TABLES `bill_items` WRITE;
 /*!40000 ALTER TABLE `bill_items` DISABLE KEYS */;
-INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7),(15,0,'Tea',2,20,10,8),(16,0,'Coffee',1,20,20,8),(17,0,'Tea',2,20,10,9),(18,0,'Coffee',1,20,20,9),(19,0,'Tea',2,20,10,10),(20,0,'Coffee',1,20,20,10),(21,0,'Tea',2,20,10,11),(22,0,'Coffee',1,20,20,11);
+INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7),(15,0,'Tea',2,20,10,8),(16,0,'Coffee',1,20,20,8),(17,0,'Tea',2,20,10,9),(18,0,'Coffee',1,20,20,9),(19,0,'Tea',2,20,10,10),(20,0,'Coffee',1,20,20,10),(21,0,'Tea',2,20,10,11),(22,0,'Coffee',1,20,20,11),(23,0,'Tea',2,20,10,12),(24,0,'Coffee',1,20,20,12),(25,0,'Tea',2,20,10,13),(26,0,'Coffee',1,20,20,13),(27,0,'Tea',2,20,10,14),(28,0,'Coffee',1,20,20,14),(29,0,'Tea',2,20,10,15),(30,0,'Coffee',1,20,20,15),(31,0,'Tea',2,20,10,16),(32,0,'Coffee',1,20,20,16),(33,0,'Tea',2,20,10,17),(34,0,'Coffee',1,20,20,17),(35,0,'Tea',2,20,10,18),(36,0,'Coffee',1,20,20,18),(37,0,'Tea',2,20,10,19),(38,0,'Coffee',1,20,20,19),(39,0,'Tea',2,20,10,20),(40,0,'Coffee',1,20,20,20),(41,0,'Tea',2,20,10,21),(42,0,'Coffee',1,20,20,21),(43,0,'Tea',2,20,10,22),(44,0,'Coffee',1,20,20,22),(45,0,'Tea',2,20,10,23),(46,0,'Coffee',1,20,20,23),(47,0,'Tea',2,20,10,24),(48,0,'Coffee',1,20,20,24),(49,0,'Tea',2,20,10,25),(50,0,'Coffee',1,20,20,25),(51,0,'Tea',2,20,10,26),(52,0,'Coffee',1,20,20,26),(53,0,'Tea',2,20,10,27),(54,0,'Coffee',1,20,20,27),(55,0,'Tea',2,20,10,28),(56,0,'Coffee',1,20,20,28),(57,0,'Tea',2,20,10,29),(58,0,'Coffee',1,20,20,29),(59,0,'Tea',2,20,10,30),(60,0,'Coffee',1,20,20,30),(61,0,'Tea',2,20,10,31),(62,0,'Coffee',1,20,20,31),(63,0,'Tea',2,20,10,32),(64,0,'Coffee',1,20,20,32),(65,0,'Tea',2,20,10,33),(66,0,'Coffee',1,20,20,33),(67,0,'Tea',2,20,10,34),(68,0,'Coffee',1,20,20,34);
 /*!40000 ALTER TABLE `bill_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `bills` (
   PRIMARY KEY (`id`),
   KEY `FKoy9sc2dmxj2qwjeiiilf3yuxp` (`customer_id`),
   CONSTRAINT `FKoy9sc2dmxj2qwjeiiilf3yuxp` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 18:10:05.027792',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-28 11:49:01.271218',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-28 12:47:14.092192',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-28 12:59:08.657977',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-06-28 15:54:51.275619',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-06-28 16:25:05.103555',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-06-28 17:11:36.811209',5,40,7.2,42.2,NULL),(8,'INV-1001','2025-06-28 18:13:05.668156',5,40,7.2,42.2,NULL),(9,'INV-1001','2025-06-28 18:21:02.086330',5,40,7.2,42.2,NULL),(10,'INV-1001','2025-06-28 20:26:04.160057',5,40,7.2,42.2,NULL),(11,'INV-1001','2025-06-28 20:34:04.719980',5,40,7.2,42.2,NULL);
+INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-30 10:22:12.955209',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-30 10:27:26.617085',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-30 12:46:39.172033',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-30 12:51:11.409101',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-06-30 12:55:30.600993',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-06-30 13:01:07.889669',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-06-30 14:05:47.460064',5,40,7.2,42.2,NULL),(8,'INV-1001','2025-06-30 14:19:51.793165',5,40,7.2,42.2,NULL),(9,'INV-1001','2025-06-30 15:24:29.074457',5,40,7.2,42.2,NULL),(10,'INV-1001','2025-07-01 11:23:33.655535',5,40,7.2,42.2,NULL),(11,'INV-1001','2025-07-01 11:24:13.993257',5,40,7.2,42.2,NULL),(12,'INV-1001','2025-07-01 11:25:05.327199',5,40,7.2,42.2,NULL),(13,'INV-1001','2025-07-01 11:52:12.170876',5,40,7.2,42.2,NULL),(14,'INV-1001','2025-07-01 11:57:24.052794',5,40,7.2,42.2,NULL),(15,'INV-1001','2025-07-01 12:27:45.211060',5,40,7.2,42.2,NULL),(16,'INV-1001','2025-07-01 12:35:57.477905',5,40,7.2,42.2,NULL),(17,'INV-1001','2025-07-01 12:36:47.175719',5,40,7.2,42.2,NULL),(18,'INV-1001','2025-07-01 12:47:41.683963',5,40,7.2,42.2,NULL),(19,'INV-1001','2025-07-01 12:48:53.549338',5,40,7.2,42.2,NULL),(20,'INV-1001','2025-07-01 12:59:02.344380',5,40,7.2,42.2,NULL),(21,'INV-1001','2025-07-01 13:01:48.707046',5,40,7.2,42.2,NULL),(22,'INV-1001','2025-07-01 13:04:56.483233',5,40,7.2,42.2,NULL),(23,'INV-1001','2025-07-01 13:06:09.707165',5,40,7.2,42.2,NULL),(24,'INV-1001','2025-07-01 13:09:42.616575',5,40,7.2,42.2,NULL),(25,'INV-1001','2025-07-01 14:27:14.886301',5,40,7.2,42.2,NULL),(26,'INV-1001','2025-07-01 14:34:13.040218',5,40,7.2,42.2,NULL),(27,'INV-1001','2025-07-01 14:35:28.324299',5,40,7.2,42.2,NULL),(28,'INV-1001','2025-07-01 14:36:23.484539',5,40,7.2,42.2,NULL),(29,'INV-1001','2025-07-01 14:42:34.100455',5,40,7.2,42.2,NULL),(30,'INV-1001','2025-07-01 15:10:16.282063',5,40,7.2,42.2,NULL),(31,'INV-1001','2025-07-01 16:18:14.434234',5,40,7.2,42.2,NULL),(32,'INV-1001','2025-07-01 16:19:47.206908',5,40,7.2,42.2,NULL),(33,'INV-1001','2025-07-01 16:50:38.648394',5,40,7.2,42.2,NULL),(34,'INV-1001','2025-07-01 16:54:28.108224',5,40,7.2,42.2,NULL);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +125,7 @@ CREATE TABLE `hotels` (
   `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`hotel_id`),
   UNIQUE KEY `UK497hd03hhoy0rnc18gqaibe7e` (`mobile`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `hotels` (
 
 LOCK TABLES `hotels` WRITE;
 /*!40000 ALTER TABLE `hotels` DISABLE KEYS */;
-INSERT INTO `hotels` VALUES (1,NULL,'2025-06-27 18:10:04.806414','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9999999991','Rajeev','2025-06-27 18:10:04.806414'),(2,NULL,'2025-06-28 11:49:00.891317','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-28 11:49:00.891317');
+INSERT INTO `hotels` VALUES (1,'Sector 12, Connaught Place, New Delhi, 110001','2025-06-30 10:22:12.747921','sneha.elitehotel@example.com',NULL,NULL,NULL,NULL,NULL,NULL,'2025-06-30 14:01:36.215551'),(2,NULL,'2025-06-30 14:05:47.129647','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-30 14:05:47.129647');
 /*!40000 ALTER TABLE `hotels` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,13 +177,16 @@ DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `category` varchar(255) DEFAULT NULL,
-  `name` varchar(100) NOT NULL,
   `price` double DEFAULT NULL,
   `hotel_id` bigint DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
+  `product_code` varchar(100) NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `quantity` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK4kcfnm4xqk3rkrjpxaqx2rl7p` (`hotel_id`),
   CONSTRAINT `FK4kcfnm4xqk3rkrjpxaqx2rl7p` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`hotel_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -192,7 +195,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'Beverage','Tea',10,1),(2,'Beverage','Coffee',20,1),(3,'Beverage','Tea',10,2),(4,'Beverage','Coffee',20,2);
+INSERT INTO `products` VALUES (2,'Beverage',20,1,NULL,'','',NULL),(3,'Beverage',10,1,_binary '','TEA001','Tea',100),(4,'Beverage',20,1,_binary '','COF001','Coffee',100),(6,'Beverage',10,2,_binary '','TEA001','Tea',100),(7,'Beverage',20,2,_binary '','COF001','Coffee',100),(8,'Food',250,1,_binary '','PTK001','Paneer Tikka',10),(9,'Food',250,1,_binary '','CH01','Paneer chadaa',10);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -237,7 +240,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -246,7 +249,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin@taj.com','admin123'),(2,'admin12@taj.com','admin123'),(3,'abhishek@example.com','$2a$10$46knH.2tRgaa0ESb88Lq6O84ZKA7iUjNDWjaTYFlBKgv9irVFeU7W'),(4,'test@example.com','$2a$10$viqCc.jIU1740LtrhEo4qe7oqsSOzNC1CKQIU5wZ8G080N7A8f7M6');
+INSERT INTO `users` VALUES (1,'admin12@taj.com','admin123'),(2,'ram@gmail.com','$2a$10$x93vwgiDva/l7FJVA7ipLOBJUbgt9NqdKFPAxD84h0nNAsgkIkPFy');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -288,4 +291,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-28 20:34:05
+-- Dump completed on 2025-07-01 16:54:28
