@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 9.3.0, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
 -- Host: localhost    Database: hotel_db
 -- ------------------------------------------------------
--- Server version	9.3.0
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -33,7 +33,7 @@ CREATE TABLE `bill_items` (
   PRIMARY KEY (`id`),
   KEY `FKj9o7g8krc56gf6t6f0sy4ic5p` (`bill_id`),
   CONSTRAINT `FKj9o7g8krc56gf6t6f0sy4ic5p` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `bill_items` (
 
 LOCK TABLES `bill_items` WRITE;
 /*!40000 ALTER TABLE `bill_items` DISABLE KEYS */;
-INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7),(15,0,'Tea',2,20,10,8),(16,0,'Coffee',1,20,20,8),(17,0,'Tea',2,20,10,9),(18,0,'Coffee',1,20,20,9),(19,0,'Tea',2,20,10,10),(20,0,'Coffee',1,20,20,10),(21,0,'Tea',2,20,10,11),(22,0,'Coffee',1,20,20,11);
+INSERT INTO `bill_items` VALUES (1,0,'Tea',2,20,10,1),(2,0,'Coffee',1,20,20,1),(3,0,'Tea',2,20,10,2),(4,0,'Coffee',1,20,20,2),(5,0,'Tea',2,20,10,3),(6,0,'Coffee',1,20,20,3),(7,0,'Tea',2,20,10,4),(8,0,'Coffee',1,20,20,4),(9,0,'Tea',2,20,10,5),(10,0,'Coffee',1,20,20,5),(11,0,'Tea',2,20,10,6),(12,0,'Coffee',1,20,20,6),(13,0,'Tea',2,20,10,7),(14,0,'Coffee',1,20,20,7),(15,0,'Tea',2,20,10,8),(16,0,'Coffee',1,20,20,8),(17,0,'Tea',2,20,10,9),(18,0,'Coffee',1,20,20,9),(19,0,'Tea',2,20,10,10),(20,0,'Coffee',1,20,20,10);
 /*!40000 ALTER TABLE `bill_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +65,7 @@ CREATE TABLE `bills` (
   PRIMARY KEY (`id`),
   KEY `FKoy9sc2dmxj2qwjeiiilf3yuxp` (`customer_id`),
   CONSTRAINT `FKoy9sc2dmxj2qwjeiiilf3yuxp` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-27 18:10:05.027792',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-06-28 11:49:01.271218',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-06-28 12:47:14.092192',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-06-28 12:59:08.657977',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-06-28 15:54:51.275619',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-06-28 16:25:05.103555',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-06-28 17:11:36.811209',5,40,7.2,42.2,NULL),(8,'INV-1001','2025-06-28 18:13:05.668156',5,40,7.2,42.2,NULL),(9,'INV-1001','2025-06-28 18:21:02.086330',5,40,7.2,42.2,NULL),(10,'INV-1001','2025-06-28 20:26:04.160057',5,40,7.2,42.2,NULL),(11,'INV-1001','2025-06-28 20:34:04.719980',5,40,7.2,42.2,NULL);
+INSERT INTO `bills` VALUES (1,'INV-1001','2025-06-30 16:17:36.717121',5,40,7.2,42.2,NULL),(2,'INV-1001','2025-07-01 13:45:42.117860',5,40,7.2,42.2,NULL),(3,'INV-1001','2025-07-01 14:55:49.010287',5,40,7.2,42.2,NULL),(4,'INV-1001','2025-07-01 15:00:54.205965',5,40,7.2,42.2,NULL),(5,'INV-1001','2025-07-01 15:01:21.046975',5,40,7.2,42.2,NULL),(6,'INV-1001','2025-07-01 17:07:05.576610',5,40,7.2,42.2,NULL),(7,'INV-1001','2025-07-01 17:07:33.855006',5,40,7.2,42.2,NULL),(8,'INV-1001','2025-07-01 17:13:39.101874',5,40,7.2,42.2,NULL),(9,'INV-1001','2025-07-01 17:38:09.081189',5,40,7.2,42.2,NULL),(10,'INV-1001','2025-07-02 14:25:13.355648',5,40,7.2,42.2,NULL);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +125,7 @@ CREATE TABLE `hotels` (
   `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`hotel_id`),
   UNIQUE KEY `UK497hd03hhoy0rnc18gqaibe7e` (`mobile`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `hotels` (
 
 LOCK TABLES `hotels` WRITE;
 /*!40000 ALTER TABLE `hotels` DISABLE KEYS */;
-INSERT INTO `hotels` VALUES (1,NULL,'2025-06-27 18:10:04.806414','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9999999991','Rajeev','2025-06-27 18:10:04.806414'),(2,NULL,'2025-06-28 11:49:00.891317','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-28 11:49:00.891317');
+INSERT INTO `hotels` VALUES (1,NULL,'2025-06-30 16:17:36.528833','taj@gmail.com','GSTT1234','Hotel Taj','Luxury',_binary '','9985947896','Rajeev','2025-06-30 16:17:36.528833');
 /*!40000 ALTER TABLE `hotels` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,21 +177,17 @@ DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `category` varchar(255) DEFAULT NULL,
-  `name` varchar(100) NOT NULL,
+  `is_active` bit(1) DEFAULT NULL,
   `price` double DEFAULT NULL,
   `product_code` varchar(100) NOT NULL,
   `product_name` varchar(100) NOT NULL,
   `quantity` int DEFAULT NULL,
   `hotel_id` bigint DEFAULT NULL,
-  `is_active` bit(1) DEFAULT NULL,
-  `product_code` varchar(100) NOT NULL,
-  `product_name` varchar(100) NOT NULL,
-  `quantity` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK922x4t23nx64422orei4meb2y` (`product_code`),
   KEY `FK4kcfnm4xqk3rkrjpxaqx2rl7p` (`hotel_id`),
   CONSTRAINT `FK4kcfnm4xqk3rkrjpxaqx2rl7p` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`hotel_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -200,7 +196,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'Beverage','Tea',10,1),(2,'Beverage','Coffee',20,1),(3,'Beverage','Tea',10,2),(4,'Beverage','Coffee',20,2);
+INSERT INTO `products` VALUES (1,'Beverage',_binary '',10,'TEA001','Tea',100,1),(2,'Beverage',_binary '',20,'COF001','Coffee',100,1);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -245,7 +241,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,7 +250,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin@taj.com','admin123'),(2,'admin12@taj.com','admin123'),(3,'abhishek@example.com','$2a$10$46knH.2tRgaa0ESb88Lq6O84ZKA7iUjNDWjaTYFlBKgv9irVFeU7W'),(4,'test@example.com','$2a$10$viqCc.jIU1740LtrhEo4qe7oqsSOzNC1CKQIU5wZ8G080N7A8f7M6');
+INSERT INTO `users` VALUES (1,'admin12@taj.com','admin123');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -296,4 +292,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-28 20:34:05
+-- Dump completed on 2025-07-02 14:25:14
