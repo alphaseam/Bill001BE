@@ -61,7 +61,6 @@ public class ProductController {
             @PathVariable Long id,
             @RequestBody ProductRequest request
     ) {
-        // check if product exists
         ProductResponse existing = productService.getProductById(hotelId, id);
         if (existing == null) {
             return ResponseEntity.notFound().build();
@@ -95,9 +94,9 @@ public class ProductController {
     }
 
     /**
-     * Get all products (with pagination)
+     * Get all products
      */
-    @Operation(summary = "Get a list of all products with pagination")
+    @Operation(summary = "Get a list of all products for a hotel")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Products retrieved successfully"),
         @ApiResponse(responseCode = "403", description = "Access denied")
@@ -105,13 +104,9 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts(
             @Parameter(description = "Hotel ID", example = "1")
-            @RequestParam Long hotelId,
-            @Parameter(description = "Page number", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size", example = "10")
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam Long hotelId
     ) {
-        List<ProductResponse> products = productService.getAllProducts(hotelId, page, size);
+        List<ProductResponse> products = productService.getAllProducts(hotelId);
         return ResponseEntity.ok(products);
     }
 

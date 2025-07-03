@@ -11,7 +11,6 @@ import com.hotelapi.repository.ProductRepository;
 import com.hotelapi.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -96,13 +95,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProducts(Long hotelId, int page, int size) {
-        // fetch all products with paging, then filter by hotel
-        List<Product> products = productRepository.findAll(PageRequest.of(page, size)).stream()
-                .filter(p -> p.getHotel().getHotelId().equals(hotelId))
-                .toList();
+    public List<ProductResponse> getAllProducts(Long hotelId) {
+        // fetch all products belonging to this hotel
+        List<Product> products = productRepository.findByHotelHotelId(hotelId);
 
-        // convert each product to DTO
         return products.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
