@@ -1,67 +1,24 @@
 package com.hotelapi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.hotelapi.dto.HotelResponse;
 import com.hotelapi.dto.GenericResponse;
-import com.hotelapi.entity.Hotel;
-import com.hotelapi.repository.HotelRepository;
+import com.hotelapi.dto.HotelDto;
+import com.hotelapi.dto.HotelResponse;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
-@Service
-public class HotelService {
+public interface HotelService {
 
-    @Autowired
-    private HotelRepository hotelRepository;
+    GenericResponse<HotelResponse> saveHotel(HotelDto hotelDto);
 
-    public GenericResponse saveHotel(HotelResponse dto) {
-        if (hotelRepository.existsByMobile(dto.getMobile())) {
-            return new GenericResponse("Mobile number already exists", false);
-        }
+    GenericResponse<HotelResponse> updateHotel(Long id, HotelDto hotelDto);
 
-        Hotel hotel = new Hotel();
-        hotel.setHotelName(dto.getHotelName());
-        hotel.setOwnerName(dto.getOwnerName());
-        hotel.setMobile(dto.getMobile());
-        hotel.setEmail(dto.getEmail());
-        hotel.setAddress(dto.getAddress());
-        hotel.setGstNumber(dto.getGstNumber());
-        hotel.setHotelType(dto.getHotelType());
-        hotel.setIsActive(dto.getIsActive());
-        hotel.setCreatedAt(LocalDateTime.now());
-        hotel.setUpdatedAt(LocalDateTime.now());
+    GenericResponse<HotelResponse> getHotelById(Long id);  // JIRA-001
 
-        hotelRepository.save(hotel);
-        return new GenericResponse("Hotel saved successfully", true);
-    }
+    GenericResponse<List<HotelResponse>> getHotelsByUser(String userId); // JIRA-002
 
-    public GenericResponse updateHotel(Long id, HotelResponse dto) {
-        Optional<Hotel> optionalHotel = hotelRepository.findById(id);
-        if (optionalHotel.isEmpty()) {
-            return new GenericResponse("Hotel not found", false);
-        }
+    GenericResponse<List<HotelResponse>> getAllHotels(); // JIRA-003  
 
-        Hotel hotel = optionalHotel.get();
+    GenericResponse<String> deleteHotelById(Long id); // JIRA-004
 
-        if (!hotel.getMobile().equals(dto.getMobile()) &&
-                hotelRepository.existsByMobile(dto.getMobile())) {
-            return new GenericResponse("Mobile number already exists", false);
-        }
-
-        hotel.setHotelName(dto.getHotelName());
-        hotel.setOwnerName(dto.getOwnerName());
-        hotel.setMobile(dto.getMobile());
-        hotel.setEmail(dto.getEmail());
-        hotel.setAddress(dto.getAddress());
-        hotel.setGstNumber(dto.getGstNumber());
-        hotel.setHotelType(dto.getHotelType());
-        hotel.setIsActive(dto.getIsActive());
-        hotel.setUpdatedAt(LocalDateTime.now());
-
-        hotelRepository.save(hotel);
-        return new GenericResponse("Hotel updated successfully", true);
-    }
+    GenericResponse<HotelResponse> patchHotel(Long id, HotelDto hotelDto); // JIRA-005
 }

@@ -24,6 +24,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable()) // DISABLE BASIC AUTH
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
@@ -38,9 +39,8 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/"
                 ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .httpBasic();
+                .anyRequest().permitAll() // PERMIT ALL for local testing
+            );
 
         return http.build();
     }

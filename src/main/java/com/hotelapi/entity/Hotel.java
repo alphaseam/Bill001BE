@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "hotels", uniqueConstraints = @UniqueConstraint(columnNames = "mobile"))
 @Data                       // Generates getters, setters, toString, equals, hashCode
-@NoArgsConstructor          // ✅ Required for JPA/Hibernate
-@AllArgsConstructor         // ✅ Required for @Builder to work
-@Builder                    // ✅ Enables builder pattern
+@NoArgsConstructor          // Required for JPA/Hibernate
+@AllArgsConstructor         // Required for @Builder to work
+@Builder                    // Enables builder pattern
 public class Hotel {
 
     @Id
