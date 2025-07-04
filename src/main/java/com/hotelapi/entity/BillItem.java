@@ -1,5 +1,6 @@
 package com.hotelapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,5 +35,6 @@ public class BillItem {
 
     @ManyToOne
     @JoinColumn(name = "bill_id", nullable = false)
+    @JsonBackReference // Prevents infinite loop during serialization
     private Bill bill;
 }

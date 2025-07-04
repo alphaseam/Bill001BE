@@ -2,22 +2,34 @@ package com.hotelapi.util;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.InputStream;
 
 public class PdfUtility {
 
     public static void addBusinessHeader(Document doc, String logoPath) throws DocumentException {
         try {
-            Image logo = Image.getInstance(logoPath);
+            // Load image from classpath (e.g., static/logo.png)
+            ClassPathResource resource = new ClassPathResource(logoPath);
+            InputStream is = resource.getInputStream();
+            Image logo = Image.getInstance(is.readAllBytes());
+
             logo.scaleToFit(80, 80);
             logo.setAlignment(Image.ALIGN_CENTER);
             doc.add(logo);
         } catch (Exception e) {
-            Paragraph fallback = new Paragraph("HOTEL ROYAL PALACE", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
+            // Fallback title if image fails to load
+            Paragraph fallback = new Paragraph("HOTEL ROYAL PALACE",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
             fallback.setAlignment(Element.ALIGN_CENTER);
             doc.add(fallback);
         }
 
-        Paragraph address = new Paragraph("123, Main Road, City, State - 123456\nPhone: +91-9876543210\nEmail: contact@hotelroyal.com",
+        Paragraph address = new Paragraph(
+                "123, Main Road, City, State - 123456\n" +
+                "Phone: +91-9876543210\n" +
+                "Email: contact@hotelroyal.com",
                 FontFactory.getFont(FontFactory.HELVETICA, 10));
         address.setAlignment(Element.ALIGN_CENTER);
         doc.add(address);
@@ -43,7 +55,8 @@ public class PdfUtility {
 
     public static void addThankYouFooter(Document doc) throws DocumentException {
         doc.add(Chunk.NEWLINE);
-        Paragraph thankYou = new Paragraph("Thank you for choosing Hotel Royal Palace!",
+        Paragraph thankYou = new Paragraph(
+                "Thank you for choosing Hotel Royal Palace!",
                 FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
         thankYou.setAlignment(Element.ALIGN_CENTER);
         doc.add(thankYou);

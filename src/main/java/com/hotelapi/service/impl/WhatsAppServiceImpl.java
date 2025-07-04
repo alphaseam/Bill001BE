@@ -46,13 +46,14 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             return false;
         }
 
+        String formattedPhone = formatIndianMobileNumber(request.getCustomerPhone());
         String messageBody = WhatsAppUtil.buildMessage(request);
         boolean success = false;
         String error = null;
 
         try {
             Message message = Message.creator(
-                    new PhoneNumber("whatsapp:" + request.getCustomerPhone()),
+                    new PhoneNumber("whatsapp:" + formattedPhone),
                     new PhoneNumber(config.getWhatsappFrom()),
                     messageBody
             ).create();
@@ -69,7 +70,7 @@ public class WhatsAppServiceImpl implements WhatsAppService {
                 WhatsAppLog.builder()
                         .billId(request.getBillId())
                         .customerName(request.getCustomerName())
-                        .customerPhone(request.getCustomerPhone())
+                        .customerPhone(formattedPhone)
                         .message(messageBody)
                         .status(success ? "SENT" : "FAILED")
                         .error(error)
@@ -78,5 +79,23 @@ public class WhatsAppServiceImpl implements WhatsAppService {
         );
 
         return success;
+    }
+
+    /**
+     * Formats the mobile number to ensure it has +91 country code by default.
+     */
+    private String formatIndianMobileNumber(String mobileNumber) {
+        if (mobileNumber == null || mobileNumber.trim().isEmpty()) return "";
+
+        mobileNumber = mobileNumber.trim().replaceAll("\\s+", "");
+
+        if (mobileNumber.startsWith("+91")) {
+            return mobileNumber;
+        } else if (mobileNumber.startsWith("+")) {
+            return mobileNumber; // Other country code
+        } else if (mobileNumber.startsWith("0")) {
+            mobileNumber = mobileNumber.substring(1);
+        }
+        return "+91" + mobileNumber;
     }
 }
