@@ -24,14 +24,13 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
-            .httpBasic(httpBasic -> httpBasic.disable()) // DISABLE BASIC AUTH
+            .httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/hotel/**",
                     "/api/products/**",
                     "/api/invoice/download/**",
-                    "/api/reports/sales/monthly/product-wise",
                     "/api/bill/mobile",
                     "/api/bill/**",
                     "/swagger-ui/**",
@@ -39,7 +38,9 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/"
                 ).permitAll()
-                .anyRequest().permitAll() // PERMIT ALL for local testing
+                .requestMatchers("/api/reports/sales/**")
+                .hasAnyRole("ADMIN", "MANAGER")
+                .anyRequest().authenticated()
             );
 
         return http.build();
