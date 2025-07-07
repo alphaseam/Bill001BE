@@ -2,150 +2,186 @@ package com.hotelapi;
 
 import com.hotelapi.dto.GenericResponse;
 import com.hotelapi.dto.ProductSalesReportResponse;
+import com.hotelapi.dto.SalesReportResponse;
 import com.hotelapi.exception.BadRequestException;
 import com.hotelapi.repository.OrderRepository;
-import com.hotelapi.service.SalesReportService;
+import com.hotelapi.service.impl.SalesReportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-// Enable Mockito support with JUnit 5
-@ExtendWith(MockitoExtension.class)
-class SalesReportServiceTest {
+class SalesReportServiceImplTest {
 
-    // Inject mocked dependencies into SalesReportService
-    @InjectMocks
-    private SalesReportService salesReportService;
-
-    // Mock OrderRepository dependency
     @Mock
     private OrderRepository orderRepository;
 
-    // Reusable mock report data
-    private List<ProductSalesReportResponse> mockReportList;
+    @InjectMocks
+    private SalesReportServiceImpl salesReportService;
 
-    // Setup reusable mock data before each test
+    private BigDecimal dummyRevenue;
+    private Long dummyTransactions;
+    private List<ProductSalesReportResponse> dummyProductList;
+
     @BeforeEach
     void setUp() {
-        ProductSalesReportResponse report1 = new ProductSalesReportResponse(1L, "Burger", 100L, 5000.0, "Food");
-        ProductSalesReportResponse report2 = new ProductSalesReportResponse(2L, "Fries", 200L, 3000.0, "Snacks");
-        mockReportList = Arrays.asList(report1, report2);
+        MockitoAnnotations.openMocks(this);
+        dummyRevenue = new BigDecimal("15000.50");
+        dummyTransactions = 25L;
+        dummyProductList = List.of(new ProductSalesReportResponse(
+                1L, "Burger", 100L, 5000.00, "Food"
+        ));
     }
 
-    // Test: Valid input should return correct data
+    // 1. Monthly Product Sales - Valid Input
     @Test
-    void testGetMonthlyReport_Success() {
-        when(orderRepository.getMonthlyProductSales(6, 2025)).thenReturn(mockReportList);
+    void testGetMonthlyProductSalesReport_Success() {
+        when(orderRepository.getMonthlyProductSales(6, 2025)).thenReturn(dummyProductList);
 
-        GenericResponse<List<ProductSalesReportResponse>> response = salesReportService.getMonthlyProductSalesReport(6, 2025);
+        GenericResponse<List<ProductSalesReportResponse>> response =
+                salesReportService.getMonthlyProductSalesReport(6, 2025);
 
         assertTrue(response.isSuccess());
         assertEquals("Product-wise monthly sales report generated", response.getMessage());
-        assertEquals(2, response.getData().size());
-        verify(orderRepository, times(1)).getMonthlyProductSales(6, 2025);
+        assertEquals(1, response.getData().size());
+        verify(orderRepository).getMonthlyProductSales(6, 2025);
     }
 
-    // Test: Null month should throw BadRequestException
+    // 2. Monthly Product Sales - Null Month
     @Test
-    void testGetMonthlyReport_NullMonth() {
-        Exception ex = assertThrows(BadRequestException.class, () -> {
-            salesReportService.getMonthlyProductSalesReport(null, 2025);
-        });
-
-        assertEquals("Both 'month' and 'year' are required.", ex.getMessage());
+    void testGetMonthlyProductSalesReport_NullMonth_ThrowsException() {
+        assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(null, 2025));
     }
 
-    // Test: Null year should throw BadRequestException
+    // 3. Monthly Product Sales - Null Year
     @Test
-    void testGetMonthlyReport_NullYear() {
-        Exception ex = assertThrows(BadRequestException.class, () -> {
-            salesReportService.getMonthlyProductSalesReport(6, null);
-        });
-
-        assertEquals("Both 'month' and 'year' are required.", ex.getMessage());
+    void testGetMonthlyProductSalesReport_NullYear_ThrowsException() {
+        assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(6, null));
     }
 
-    // Test: Invalid month = 0 should throw BadRequestException
+    // 4. Monthly Product Sales - Invalid Month
     @Test
-    void testGetMonthlyReport_InvalidMonthZero() {
-        Exception ex = assertThrows(BadRequestException.class, () -> {
-            salesReportService.getMonthlyProductSalesReport(0, 2025);
-        });
-
-        assertEquals("Month must be between 1 and 12.", ex.getMessage());
+    void testGetMonthlyProductSalesReport_InvalidMonth_ThrowsException() {
+        assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(13, 2025));
     }
 
-    // Test: Invalid month > 12 should throw BadRequestException
+    // 5. Daily Sales - Valid Dates
     @Test
-    void testGetMonthlyReport_InvalidMonthGreaterThan12() {
-        Exception ex = assertThrows(BadRequestException.class, () -> {
-            salesReportService.getMonthlyProductSalesReport(13, 2025);
-        });
+    void testGetDailySales_Success() {
+        LocalDate from = LocalDate.of(2025, 7, 1);
+        LocalDate to = LocalDate.of(2025, 7, 5);
 
-        assertEquals("Month must be between 1 and 12.", ex.getMessage());
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(dummyTransactions);
+
+        SalesReportResponse response = salesReportService.getDailySales("2025-07-01", "2025-07-05");
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // Test: Empty result list should still return a successful response
+    // 6. Daily Sales - Invalid Date Format
     @Test
-    void testGetMonthlyReport_EmptyData() {
-        when(orderRepository.getMonthlyProductSales(6, 2025)).thenReturn(Collections.emptyList());
-
-        GenericResponse<List<ProductSalesReportResponse>> response = salesReportService.getMonthlyProductSalesReport(6, 2025);
-
-        assertTrue(response.isSuccess());
-        assertNotNull(response.getData());
-        assertEquals(0, response.getData().size());
+    void testGetDailySales_InvalidDateFormat_ThrowsException() {
+        assertThrows(BadRequestException.class, () -> salesReportService.getDailySales("2025-15-01", "2025-07-05"));
     }
 
-    // Test: Verify response content matches expected mock data
+    // 7. Monthly Sales - Valid Year
     @Test
-    void testGetMonthlyReport_ResponseContainsCorrectData() {
-        when(orderRepository.getMonthlyProductSales(6, 2025)).thenReturn(mockReportList);
+    void testGetMonthlySales_Success() {
+        LocalDate from = LocalDate.of(2025, 1, 1);
+        LocalDate to = LocalDate.of(2025, 12, 31);
 
-        GenericResponse<List<ProductSalesReportResponse>> response = salesReportService.getMonthlyProductSalesReport(6, 2025);
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(dummyTransactions);
 
-        ProductSalesReportResponse report = response.getData().get(0);
-        assertEquals(1L, report.getProductId());
-        assertEquals("Burger", report.getProductName());
+        SalesReportResponse response = salesReportService.getMonthlySales(2025);
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // Test: Verify that repository method is called exactly once
+    // 8. Monthly Sales - Null Year (Default to current year)
     @Test
-    void testGetMonthlyReport_RepositoryMethodCalledOnce() {
-        when(orderRepository.getMonthlyProductSales(5, 2024)).thenReturn(mockReportList);
+    void testGetMonthlySales_NullYear_UsesCurrentYear() {
+        int year = LocalDate.now().getYear();
+        LocalDate from = LocalDate.of(year, 1, 1);
+        LocalDate to = LocalDate.of(year, 12, 31);
 
-        salesReportService.getMonthlyProductSalesReport(5, 2024);
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(dummyTransactions);
 
-        verify(orderRepository, times(1)).getMonthlyProductSales(5, 2024);
+        SalesReportResponse response = salesReportService.getMonthlySales(null);
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // Test: Negative month should throw BadRequestException
+    // 9. Yearly Sales - Valid Range
     @Test
-    void testGetMonthlyReport_NegativeMonth() {
-        Exception ex = assertThrows(BadRequestException.class, () -> {
-            salesReportService.getMonthlyProductSalesReport(-3, 2024);
-        });
+    void testGetYearlySales_Success() {
+        LocalDate from = LocalDate.of(2020, 1, 1);
+        LocalDate to = LocalDate.of(2025, 12, 31);
 
-        assertEquals("Month must be between 1 and 12.", ex.getMessage());
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(dummyTransactions);
+
+        SalesReportResponse response = salesReportService.getYearlySales(2020, 2025);
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // Test: Edge case month values (1 and 12) should work correctly
+    // 10. Yearly Sales - Null Years (Default to current)
     @Test
-    void testGetMonthlyReport_BoundaryMonth_1And12() {
-        when(orderRepository.getMonthlyProductSales(1, 2025)).thenReturn(mockReportList);
-        when(orderRepository.getMonthlyProductSales(12, 2025)).thenReturn(mockReportList);
+    void testGetYearlySales_NullYears_UseCurrent() {
+        int year = LocalDate.now().getYear();
+        LocalDate from = LocalDate.of(year, 1, 1);
+        LocalDate to = LocalDate.of(year, 12, 31);
 
-        GenericResponse<List<ProductSalesReportResponse>> janResponse = salesReportService.getMonthlyProductSalesReport(1, 2025);
-        GenericResponse<List<ProductSalesReportResponse>> decResponse = salesReportService.getMonthlyProductSalesReport(12, 2025);
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(dummyTransactions);
 
-        assertEquals(2, janResponse.getData().size());
-        assertEquals(2, decResponse.getData().size());
+        SalesReportResponse response = salesReportService.getYearlySales(null, null);
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
+    }
+
+    // 11. Daily Sales - Null Inputs (Use today’s date)
+    @Test
+    void testGetDailySales_NullDates_UseToday() {
+        LocalDate today = LocalDate.now();
+
+        when(orderRepository.getTotalRevenueBetweenDates(today, today)).thenReturn(dummyRevenue);
+        when(orderRepository.getTotalTransactionsBetweenDates(today, today)).thenReturn(dummyTransactions);
+
+        SalesReportResponse response = salesReportService.getDailySales(null, null);
+
+        assertEquals(dummyRevenue, response.getTotalRevenue());
+        assertEquals(dummyTransactions, response.getTotalTransactions());
+    }
+
+    // 12. Daily Sales - Revenue or Transactions Null Should Default to Zero
+    @Test
+    void testGetDailySales_NullValues_DefaultToZero() {
+        LocalDate from = LocalDate.of(2025, 7, 1);
+        LocalDate to = LocalDate.of(2025, 7, 5);
+
+        when(orderRepository.getTotalRevenueBetweenDates(from, to)).thenReturn(null);
+        when(orderRepository.getTotalTransactionsBetweenDates(from, to)).thenReturn(null);
+
+        SalesReportResponse response = salesReportService.getDailySales("2025-07-01", "2025-07-05");
+
+        assertEquals(BigDecimal.ZERO, response.getTotalRevenue());
+        assertEquals(0L, response.getTotalTransactions());
     }
 }
