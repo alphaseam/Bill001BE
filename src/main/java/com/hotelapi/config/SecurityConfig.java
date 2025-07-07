@@ -2,7 +2,7 @@ package com.hotelapi.config;
 
 import com.hotelapi.repository.UserRepository;
 import com.hotelapi.service.CustomUserDetailsService;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +17,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,6 +30,7 @@ public class SecurityConfig {
             .httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    // public endpoints
                     "/api/auth/**",
                     "/api/hotel/**",
                     "/api/products/**",
@@ -38,8 +42,12 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/"
                 ).permitAll()
+
+                // secure sales reports only for admin / manager
                 .requestMatchers("/api/reports/sales/**")
                 .hasAnyRole("ADMIN", "MANAGER")
+
+                // any other endpoint should be authenticated
                 .anyRequest().authenticated()
             );
 
@@ -57,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
+    public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService(userRepository);
     }
 
