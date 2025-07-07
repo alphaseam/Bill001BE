@@ -10,31 +10,42 @@ public class PdfUtility {
 
     public static void addBusinessHeader(Document doc, String logoPath) throws DocumentException {
         try {
-            // Load image from classpath (e.g., static/logo.png)
             ClassPathResource resource = new ClassPathResource(logoPath);
-            InputStream is = resource.getInputStream();
-            Image logo = Image.getInstance(is.readAllBytes());
+            System.out.println("Logo exists: " + resource.exists());  // Debug log
 
-            logo.scaleToFit(80, 80);
-            logo.setAlignment(Image.ALIGN_CENTER);
-            doc.add(logo);
+            if (!resource.exists()) {
+                addFallbackTitle(doc);
+                return;
+            }
+
+            try (InputStream is = resource.getInputStream()) {
+                byte[] imageBytes = is.readAllBytes();
+                Image logo = Image.getInstance(imageBytes);
+                logo.scaleToFit(80, 80);
+                logo.setAlignment(Image.ALIGN_CENTER);
+                doc.add(logo);
+            }
         } catch (Exception e) {
-            // Fallback title if image fails to load
-            Paragraph fallback = new Paragraph("HOTEL ROYAL PALACE",
-                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
-            fallback.setAlignment(Element.ALIGN_CENTER);
-            doc.add(fallback);
+            System.err.println("Error loading logo: " + e.getMessage());
+            addFallbackTitle(doc);
         }
 
         Paragraph address = new Paragraph(
                 "123, Main Road, City, State - 123456\n" +
-                "Phone: +91-9876543210\n" +
-                "Email: contact@hotelroyal.com",
+                        "Phone: +91-9876543210\n" +
+                        "Email: contact@hotelroyal.com",
                 FontFactory.getFont(FontFactory.HELVETICA, 10));
         address.setAlignment(Element.ALIGN_CENTER);
         doc.add(address);
 
         doc.add(Chunk.NEWLINE);
+    }
+
+    private static void addFallbackTitle(Document doc) throws DocumentException {
+        Paragraph fallback = new Paragraph("HOTEL ROYAL PALACE",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
+        fallback.setAlignment(Element.ALIGN_CENTER);
+        doc.add(fallback);
     }
 
     public static PdfPCell getTableHeaderCell(String text) {
