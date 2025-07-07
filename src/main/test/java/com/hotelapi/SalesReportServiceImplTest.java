@@ -185,3 +185,4 @@ class SalesReportServiceImplTest {
         assertEquals(0L, response.getTotalTransactions());
     }
 }
+
