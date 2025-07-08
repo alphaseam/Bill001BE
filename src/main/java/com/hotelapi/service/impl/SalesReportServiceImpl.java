@@ -71,8 +71,8 @@ public class SalesReportServiceImpl implements SalesReportService {
         return SalesReportResponse.builder()
                 .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO)
                 .totalTransactions(totalTransactions != null ? totalTransactions : 0L)
-                .bestSellingProduct("Pending")  // you can add logic later to determine top product
-                .topCustomer("Pending")         // you can add logic later to determine top customer
+                .bestSellingProduct("Pending")  
+                .topCustomer("Pending")         
                 .build();
     }
 
