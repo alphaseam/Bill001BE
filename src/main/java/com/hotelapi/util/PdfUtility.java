@@ -12,87 +12,84 @@ import java.io.InputStream;
 public class PdfUtility {
 
     /**
-     * Adds a business header with the hotel logo and contact details.
-     * Falls back to hotel name text if the logo is missing.
+     * Adds a business header with logo and contact details to the PDF.
+     * If the logo is not found, a text header is used as a fallback.
      *
      * @param doc      the PDF document
-     * @param logoPath path relative to resources, for example "static/logo.png"
-     * @throws DocumentException in case of PDF errors
+     * @param logoPath classpath location of the logo (e.g., "static/logo.png")
+     * @throws DocumentException in case of PDF writing errors
      */
     public static void addBusinessHeader(Document doc, String logoPath) throws DocumentException {
         try {
-            // attempt to load from classpath
             ClassPathResource resource = new ClassPathResource(logoPath);
-
-            System.out.println("Logo exists? " + resource.exists());
 
             if (resource.exists()) {
                 try (InputStream is = resource.getInputStream()) {
                     byte[] imageBytes = is.readAllBytes();
                     Image logo = Image.getInstance(imageBytes);
-                    logo.scaleToFit(80, 80);
-                    logo.setAlignment(Image.ALIGN_CENTER);
+                    logo.scaleToFit(100, 60);
+                    logo.setAlignment(Element.ALIGN_CENTER);
                     doc.add(logo);
                 }
             } else {
-                System.err.println("Logo not found in classpath, using fallback text header.");
+                System.err.println("⚠️ Logo not found at: " + logoPath + " — using text fallback.");
                 addFallbackTitle(doc);
             }
         } catch (Exception e) {
-            System.err.println("Error loading logo: " + e.getMessage());
+            System.err.println("⚠️ Error loading logo from path [" + logoPath + "]: " + e.getMessage());
             addFallbackTitle(doc);
         }
 
-        // address block below the logo or fallback
-        Paragraph address = new Paragraph(
-                "123, Main Road, City, State - 123456\n" +
-                        "Phone: +91-9876543210\n" +
-                        "Email: contact@hotelroyal.com",
-                FontFactory.getFont(FontFactory.HELVETICA, 10));
-        address.setAlignment(Element.ALIGN_CENTER);
-        doc.add(address);
-
+        // Business details below logo/text
+        Paragraph contact = new Paragraph(
+                "Hotel Royal Palace\n" +
+                        "123, Main Road, City, State - 123456\n" +
+                        "Phone: +91-9876543210 | Email: contact@hotelroyal.com",
+                FontFactory.getFont(FontFactory.HELVETICA, 10)
+        );
+        contact.setAlignment(Element.ALIGN_CENTER);
+        doc.add(contact);
         doc.add(Chunk.NEWLINE);
     }
 
     /**
-     * Adds a fallback text header if the logo is missing.
+     * Fallback title when logo is missing.
      *
      * @param doc the PDF document
-     * @throws DocumentException
+     * @throws DocumentException if the document can't be written
      */
     private static void addFallbackTitle(Document doc) throws DocumentException {
-        Paragraph fallback = new Paragraph("HOTEL ROYAL PALACE",
+        Paragraph title = new Paragraph("HOTEL ROYAL PALACE",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
-        fallback.setAlignment(Element.ALIGN_CENTER);
-        doc.add(fallback);
+        title.setAlignment(Element.ALIGN_CENTER);
+        doc.add(title);
     }
 
     /**
-     * Creates a table header cell with consistent style.
+     * Returns a styled table header cell.
      *
-     * @param text header text
-     * @return styled PdfPCell
+     * @param text the header text
+     * @return styled header cell
      */
     public static PdfPCell getTableHeaderCell(String text) {
         Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
         cell.setBackgroundColor(BaseColor.DARK_GRAY);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setPadding(5);
+        cell.setPadding(6f);
         return cell;
     }
 
     /**
-     * Creates a normal table cell with standard style.
+     * Returns a normal styled table cell.
      *
-     * @param text cell text
-     * @return styled PdfPCell
+     * @param text the cell text
+     * @return styled data cell
      */
     public static PdfPCell getTableCell(String text) {
         Font font = FontFactory.getFont(FontFactory.HELVETICA, 10);
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setPadding(5);
+        cell.setPadding(6f);
         return cell;
     }
 
@@ -100,14 +97,14 @@ public class PdfUtility {
      * Adds a thank-you footer at the end of the PDF.
      *
      * @param doc the PDF document
-     * @throws DocumentException
+     * @throws DocumentException if the document can't be written
      */
     public static void addThankYouFooter(Document doc) throws DocumentException {
         doc.add(Chunk.NEWLINE);
-        Paragraph thankYou = new Paragraph(
+        Paragraph thanks = new Paragraph(
                 "Thank you for choosing Hotel Royal Palace!",
                 FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
-        thankYou.setAlignment(Element.ALIGN_CENTER);
-        doc.add(thankYou);
+        thanks.setAlignment(Element.ALIGN_CENTER);
+        doc.add(thanks);
     }
 }

@@ -2,12 +2,14 @@ package com.hotelapi.service;
 
 import com.hotelapi.entity.Bill;
 import com.hotelapi.repository.BillRepository;
+import com.hotelapi.util.PdfUtility;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +38,14 @@ public class InvoiceService {
         Bill bill = optionalBill.get();
 
         String fileName = "Invoice_" + bill.getBillNumber() + ".pdf";
-        String filePath = invoiceDir + "/" + fileName;
+        
+        // Ensure the output directory exists
+        File outputDir = new File(invoiceDir);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+        
+        String filePath = invoiceDir + File.separator + fileName;
 
         Document document = new Document(PageSize.A4, 50, 50, 80, 50);
         PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -53,21 +62,9 @@ public class InvoiceService {
         return filePath;
     }
 
-    private void addHeader(Document doc) throws DocumentException, IOException {
-        Paragraph businessName = new Paragraph("Hotel Royal Palace", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20));
-        businessName.setAlignment(Element.ALIGN_CENTER);
-        doc.add(businessName);
-
-        Paragraph address = new Paragraph("123, Main Road, City, State - 123456", FontFactory.getFont(FontFactory.HELVETICA, 10));
-        address.setAlignment(Element.ALIGN_CENTER);
-        doc.add(address);
-
-        Paragraph phone = new Paragraph("Phone: +91-9876543210 | Email: contact@hotelroyal.com", FontFactory.getFont(FontFactory.HELVETICA, 10));
-        phone.setAlignment(Element.ALIGN_CENTER);
-        doc.add(phone);
-
-        doc.add(Chunk.NEWLINE);
-    }
+private void addHeader(Document doc) throws DocumentException, IOException {
+    PdfUtility.addBusinessHeader(doc, "static/logo.png");
+}
 
     private void addCustomerDetails(Document doc, Bill bill) throws DocumentException {
         Paragraph billInfo = new Paragraph("Invoice #: " + bill.getBillNumber() +
@@ -89,23 +86,19 @@ public class InvoiceService {
         addTableHeader(table, "Item", "Qty", "Unit Price", "Discount", "Total");
 
         bill.getItems().forEach(item -> {
-            table.addCell(item.getItemName());
-            table.addCell(String.valueOf(item.getQuantity()));
-            table.addCell(String.format("%.2f", item.getUnitPrice()));
-            table.addCell(String.format("%.2f", item.getDiscount()));
-            table.addCell(String.format("%.2f", item.getTotal()));
+            table.addCell(PdfUtility.getTableCell(item.getItemName()));
+            table.addCell(PdfUtility.getTableCell(String.valueOf(item.getQuantity())));
+            table.addCell(PdfUtility.getTableCell(String.format("%.2f", item.getUnitPrice())));
+            table.addCell(PdfUtility.getTableCell(String.format("%.2f", item.getDiscount())));
+            table.addCell(PdfUtility.getTableCell(String.format("%.2f", item.getTotal())));
         });
 
         doc.add(table);
     }
 
     private void addTableHeader(PdfPTable table, String... headers) {
-        Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
         for (String header : headers) {
-            PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
-            table.addCell(cell);
+            table.addCell(PdfUtility.getTableHeaderCell(header));
         }
     }
 
@@ -115,25 +108,22 @@ public class InvoiceService {
         totalTable.setWidthPercentage(40f);
         totalTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
-        totalTable.addCell("Subtotal:");
-        totalTable.addCell(String.format("%.2f", bill.getSubtotal()));
+        totalTable.addCell(PdfUtility.getTableCell("Subtotal:"));
+        totalTable.addCell(PdfUtility.getTableCell(String.format("%.2f", bill.getSubtotal())));
 
-        totalTable.addCell("Tax:");
-        totalTable.addCell(String.format("%.2f", bill.getTax()));
+        totalTable.addCell(PdfUtility.getTableCell("Tax:"));
+        totalTable.addCell(PdfUtility.getTableCell(String.format("%.2f", bill.getTax())));
 
-        totalTable.addCell("Discount:");
-        totalTable.addCell(String.format("%.2f", bill.getDiscount()));
+        totalTable.addCell(PdfUtility.getTableCell("Discount:"));
+        totalTable.addCell(PdfUtility.getTableCell(String.format("%.2f", bill.getDiscount())));
 
-        totalTable.addCell("Grand Total:");
-        totalTable.addCell(String.format("%.2f", bill.getTotal()));
+        totalTable.addCell(PdfUtility.getTableHeaderCell("Grand Total:"));
+        totalTable.addCell(PdfUtility.getTableHeaderCell(String.format("%.2f", bill.getTotal())));
 
         doc.add(totalTable);
     }
 
     private void addFooter(Document doc) throws DocumentException {
-        doc.add(Chunk.NEWLINE);
-        Paragraph thankYou = new Paragraph("Thank you for visiting Hotel Royal Palace!", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
-        thankYou.setAlignment(Element.ALIGN_CENTER);
-        doc.add(thankYou);
+        PdfUtility.addThankYouFooter(doc);
     }
 }

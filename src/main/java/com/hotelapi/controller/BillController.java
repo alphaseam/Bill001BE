@@ -5,12 +5,20 @@ import com.hotelapi.dto.MobileBillRequest;
 import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.entity.Bill;
 import com.hotelapi.service.BillService;
+import com.hotelapi.service.InvoiceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -20,10 +28,8 @@ import java.util.List;
 public class BillController {
 
     private final BillService billService;
+    private final InvoiceService invoiceService;
 
-    /**
-     * JIRA-101: Create a new bill
-     */
     @PostMapping
     @Operation(summary = "Create a new bill and send WhatsApp notification")
     public ResponseEntity<Bill> createBill(@RequestBody BillDto billDto) {
@@ -31,9 +37,6 @@ public class BillController {
         return ResponseEntity.ok(created);
     }
 
-    /**
-     * Mobile Bill Creation Endpoint
-     */
     @PostMapping("/mobile")
     @Operation(summary = "Create a bill for mobile users")
     public ResponseEntity<MobileBillResponse> createMobileBill(@RequestBody MobileBillRequest request) {
@@ -41,9 +44,6 @@ public class BillController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * JIRA-102: Get a bill by ID
-     */
     @GetMapping("/{id}")
     @Operation(summary = "Fetch a bill by ID")
     public ResponseEntity<Bill> getBillById(@PathVariable Long id) {
@@ -51,9 +51,6 @@ public class BillController {
         return ResponseEntity.ok(bill);
     }
 
-    /**
-     * JIRA-103: Get all bills
-     */
     @GetMapping("/all")
     @Operation(summary = "Fetch all bills")
     public ResponseEntity<List<Bill>> getAllBills() {
@@ -61,9 +58,6 @@ public class BillController {
         return ResponseEntity.ok(bills);
     }
 
-    /**
-     * JIRA-104: Partially update a bill
-     */
     @PatchMapping("/{id}")
     @Operation(summary = "Update an existing bill (partial fields)")
     public ResponseEntity<Bill> updateBill(@PathVariable Long id, @RequestBody BillDto billDto) {
@@ -71,13 +65,43 @@ public class BillController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * JIRA-105: Delete a bill by ID
-     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a bill by ID")
     public ResponseEntity<String> deleteBill(@PathVariable Long id) {
         billService.deleteBill(id);
         return ResponseEntity.ok("Bill deleted successfully.");
+    }
+
+    @GetMapping("/download-invoice/{billId}")
+    @Operation(summary = "Download the invoice PDF for a given bill ID")
+    public ResponseEntity<Resource> downloadInvoice(@PathVariable Long billId) {
+        try {
+            // Get relative file path from service
+            String relativePath = invoiceService.generateInvoicePdf(billId);
+
+            // Convert to absolute path
+            Path filePath = Paths.get("").toAbsolutePath().resolve(relativePath).normalize();
+            System.out.println("Invoice file path: " + filePath); // Debugging
+
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/pdf";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 }
