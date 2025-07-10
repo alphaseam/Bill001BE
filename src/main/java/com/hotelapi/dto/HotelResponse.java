@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HotelResponse {
+    private Long hotelId;
     private String hotelName;
     private String ownerName;
     private String mobile;

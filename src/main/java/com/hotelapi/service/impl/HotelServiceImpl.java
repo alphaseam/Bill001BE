@@ -24,7 +24,24 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public GenericResponse<HotelResponse> saveHotel(HotelDto dto) {
-        if (hotelRepository.existsByMobile(dto.getMobile())) {
+        // Validate required fields
+        if (dto.getHotelName() == null || dto.getHotelName().trim().isEmpty()) {
+            throw new InvalidInputException("Hotel name is required");
+        }
+        if (dto.getOwnerName() == null || dto.getOwnerName().trim().isEmpty()) {
+            throw new InvalidInputException("Owner name is required");
+        }
+        if (dto.getMobile() == null || dto.getMobile().trim().isEmpty()) {
+            throw new InvalidInputException("Mobile number is required");
+        }
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+            throw new InvalidInputException("Email is required");
+        }
+        if (dto.getAddress() == null || dto.getAddress().trim().isEmpty()) {
+            throw new InvalidInputException("Address is required");
+        }
+        
+        if (hotelRepository.existsByMobile(dto.getMobile().trim())) {
             throw new InvalidInputException("Mobile number already exists");
         }
 
@@ -51,9 +68,31 @@ public class HotelServiceImpl implements HotelService {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
 
-        if (!hotel.getMobile().equals(dto.getMobile()) &&
-                hotelRepository.existsByMobile(dto.getMobile())) {
-            throw new InvalidInputException("Mobile number already exists");
+        // Validate required fields
+        if (dto.getHotelName() == null || dto.getHotelName().trim().isEmpty()) {
+            throw new InvalidInputException("Hotel name is required");
+        }
+        if (dto.getOwnerName() == null || dto.getOwnerName().trim().isEmpty()) {
+            throw new InvalidInputException("Owner name is required");
+        }
+        if (dto.getMobile() == null || dto.getMobile().trim().isEmpty()) {
+            throw new InvalidInputException("Mobile number is required");
+        }
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+            throw new InvalidInputException("Email is required");
+        }
+        if (dto.getAddress() == null || dto.getAddress().trim().isEmpty()) {
+            throw new InvalidInputException("Address is required");
+        }
+
+        // Check if mobile number has changed and if the new one already exists
+        String existingMobile = hotel.getMobile();
+        String newMobile = dto.getMobile().trim();
+        
+        if (existingMobile == null || !existingMobile.equals(newMobile)) {
+            if (hotelRepository.existsByMobile(newMobile)) {
+                throw new InvalidInputException("Mobile number already exists");
+            }
         }
 
         hotel.setHotelName(dto.getHotelName());
@@ -79,11 +118,16 @@ public class HotelServiceImpl implements HotelService {
         if (dto.getHotelName() != null) hotel.setHotelName(dto.getHotelName());
         if (dto.getOwnerName() != null) hotel.setOwnerName(dto.getOwnerName());
 
-        if (dto.getMobile() != null && !dto.getMobile().equals(hotel.getMobile())) {
-            if (hotelRepository.existsByMobile(dto.getMobile())) {
-                throw new InvalidInputException("Mobile number already exists");
+        if (dto.getMobile() != null) {
+            String existingMobile = hotel.getMobile();
+            String newMobile = dto.getMobile();
+            
+            if (existingMobile == null || !existingMobile.equals(newMobile)) {
+                if (hotelRepository.existsByMobile(newMobile)) {
+                    throw new InvalidInputException("Mobile number already exists");
+                }
+                hotel.setMobile(newMobile);
             }
-            hotel.setMobile(dto.getMobile());
         }
 
         if (dto.getEmail() != null) hotel.setEmail(dto.getEmail());
@@ -145,6 +189,7 @@ public class HotelServiceImpl implements HotelService {
 
     private HotelResponse mapToResponse(Hotel hotel) {
         HotelResponse response = new HotelResponse();
+        response.setHotelId(hotel.getHotelId());
         response.setHotelName(hotel.getHotelName());
         response.setOwnerName(hotel.getOwnerName());
         response.setMobile(hotel.getMobile());
