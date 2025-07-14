@@ -161,7 +161,7 @@ public class BillServiceImpl implements BillService {
                 throw new InvalidUpdateException("No valid fields provided for update.");
             }
 
-            // ✅ Recalculate total (ignores any dto.getTotal())
+            // Recalculate total 
             double total = subtotal + tax - discount;
             existingBill.setTotal(total);
 
