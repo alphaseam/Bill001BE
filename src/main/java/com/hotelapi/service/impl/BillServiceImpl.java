@@ -34,9 +34,6 @@ public class BillServiceImpl implements BillService {
     private final InvoiceService invoiceService;
     private final WhatsAppService whatsAppService;
 
-    /**
-     * JIRA-101: Create Bill (POST)
-     */
     @Override
     @Transactional
     public Bill createBill(BillDto dto) {
@@ -70,7 +67,7 @@ public class BillServiceImpl implements BillService {
                     .build());
         }
 
-        double tax = subtotal * 0.12; // 12% tax ex...
+        double tax = subtotal * 0.12;
         double discount = dto.getDiscount() != null ? dto.getDiscount() : 0.0;
         double total = subtotal + tax - discount;
 
@@ -90,8 +87,7 @@ public class BillServiceImpl implements BillService {
         return createBillWithNotification(bill);
     }
 
-    // Save bill and optionally notify via WhatsApp
-        public Bill createBillWithNotification(Bill bill) {
+    public Bill createBillWithNotification(Bill bill) {
         Bill savedBill = billRepository.save(bill);
 
         Customer customer = savedBill.getCustomer();
@@ -117,18 +113,12 @@ public class BillServiceImpl implements BillService {
         return savedBill;
     }
 
-    /**
-     * JIRA-102: Get Bill by ID (GET)
-     */
     @Override
     public Bill getBillById(Long id) {
         return billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Bill not found with ID: " + id));
     }
 
-    /**
-     * JIRA-103: Get All Bills (GET)
-     */
     @Override
     public List<Bill> getAllBills() {
         List<Bill> bills = billRepository.findAll();
@@ -138,37 +128,54 @@ public class BillServiceImpl implements BillService {
         return bills;
     }
 
-    /**
-     * JIRA-104: Update Bill (PATCH)
-     */
     @Override
     @Transactional
     public Bill updateBill(Long id, BillDto dto) {
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Bill not found with ID: " + id));
 
-        if (dto.getDiscount() != null) existingBill.setDiscount(dto.getDiscount());
-        if (dto.getSubtotal() != null) existingBill.setSubtotal(dto.getSubtotal());
-        if (dto.getTax() != null) existingBill.setTax(dto.getTax());
-        if (dto.getTotal() != null) existingBill.setTotal(dto.getTotal());
+        try {
+            boolean updated = false;
 
-        return billRepository.save(existingBill);
+            if (dto.getDiscount() != null) {
+                existingBill.setDiscount(dto.getDiscount());
+                updated = true;
+            }
+            if (dto.getSubtotal() != null) {
+                existingBill.setSubtotal(dto.getSubtotal());
+                updated = true;
+            }
+            if (dto.getTax() != null) {
+                existingBill.setTax(dto.getTax());
+                updated = true;
+            }
+            if (dto.getTotal() != null) {
+                existingBill.setTotal(dto.getTotal());
+                updated = true;
+            }
+
+            if (!updated) {
+                throw new InvalidUpdateException("No valid fields provided for update.");
+            }
+
+            return billRepository.save(existingBill);
+
+        } catch (InvalidUpdateException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error while updating bill ID {}: {}", id, e.getMessage(), e);
+            throw new DatabaseException("Internal error occurred while updating the bill.");
+        }
     }
 
-    /**
-     * JIRA-105: Delete Bill (DELETE)
-     */
     @Override
     @Transactional
     public void deleteBill(Long id) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Cannot delete. Bill not found with ID: " + id));
-
         billRepository.delete(bill);
     }
 
-   
-     // Mobile Bill Creation for Mobile App
     @Override
     @Transactional
     public MobileBillResponse createMobileBill(MobileBillRequest request) {
@@ -184,7 +191,6 @@ public class BillServiceImpl implements BillService {
             throw new InvalidInputException("Customer mobile number is required.");
         }
 
-        // prepare customer
         Customer customer = customerRepository.findByMobile(request.getMobileNumber())
                 .orElseGet(() -> Customer.builder()
                         .name(request.getCustomerName())
@@ -231,14 +237,12 @@ public class BillServiceImpl implements BillService {
                 .build();
 
         billItems.forEach(item -> item.setBill(bill));
-
         Bill savedBill = billRepository.save(bill);
 
         if (customer.getId() == null) {
             customerRepository.save(customer);
         }
 
-        // build response
         List<MobileBillResponse.ItemSummary> itemSummaries = new ArrayList<>();
         for (BillItem bi : billItems) {
             MobileBillResponse.ItemSummary summary = new MobileBillResponse.ItemSummary();
@@ -257,5 +261,4 @@ public class BillServiceImpl implements BillService {
 
         return response;
     }
-
 }

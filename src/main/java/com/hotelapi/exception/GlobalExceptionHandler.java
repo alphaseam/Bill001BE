@@ -26,6 +26,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(BillNotFoundException.class)
+    public ResponseEntity<GenericResponse<Object>> handleBillNotFound(BillNotFoundException ex) {
+        GenericResponse<Object> response = GenericResponse.fail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InvalidUpdateException.class)
+    public ResponseEntity<GenericResponse<Object>> handleInvalidUpdate(InvalidUpdateException ex) {
+        GenericResponse<Object> response = GenericResponse.fail(ex.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<GenericResponse<Object>> handleDatabaseException(DatabaseException ex) {
+        GenericResponse<Object> response = GenericResponse.fail("A database error occurred: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GenericResponse<Object>> handleGlobalException(Exception ex) {
         GenericResponse<Object> response = GenericResponse.fail("Internal Server Error: " + ex.getMessage());
