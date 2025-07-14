@@ -137,26 +137,33 @@ public class BillServiceImpl implements BillService {
         try {
             boolean updated = false;
 
-            if (dto.getDiscount() != null) {
-                existingBill.setDiscount(dto.getDiscount());
-                updated = true;
-            }
+            double subtotal = existingBill.getSubtotal();
+            double tax = existingBill.getTax();
+            double discount = existingBill.getDiscount();
+
             if (dto.getSubtotal() != null) {
-                existingBill.setSubtotal(dto.getSubtotal());
+                subtotal = dto.getSubtotal();
+                existingBill.setSubtotal(subtotal);
                 updated = true;
             }
             if (dto.getTax() != null) {
-                existingBill.setTax(dto.getTax());
+                tax = dto.getTax();
+                existingBill.setTax(tax);
                 updated = true;
             }
-            if (dto.getTotal() != null) {
-                existingBill.setTotal(dto.getTotal());
+            if (dto.getDiscount() != null) {
+                discount = dto.getDiscount();
+                existingBill.setDiscount(discount);
                 updated = true;
             }
 
             if (!updated) {
                 throw new InvalidUpdateException("No valid fields provided for update.");
             }
+
+            // ✅ Recalculate total (ignores any dto.getTotal())
+            double total = subtotal + tax - discount;
+            existingBill.setTotal(total);
 
             return billRepository.save(existingBill);
 
