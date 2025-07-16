@@ -16,21 +16,41 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * ============================================================================
+ * TICKET 2: HOTEL PRODUCT MANAGEMENT CONTROLLER
+ * ============================================================================
+ * This controller handles all CRUD operations and filtering for products
+ * as per the requirements specified in Ticket 2.
+ * 
+ * Required Endpoints:
+ * - POST /api/hotel/products - Create a new product
+ * - GET /api/hotel/products?userId=123 - Get products by user ID
+ * - GET /api/hotel/products/{id} - Get product by ID
+ * - PUT /api/hotel/products/{id} - Update product
+ * - DELETE /api/hotel/products/{id} - Delete product
+ * ============================================================================
+ */
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/hotel/products")
 @RequiredArgsConstructor
-@Tag(name = "Product Management", description = "CRUD operations for products")
+@Tag(name = "Hotel Product Management", description = "CRUD operations and filtering for hotel products")
 public class ProductController {
 
     private final ProductService productService;
 
     /**
-     * Create a new product
+     * ========================================================================
+     * CREATE PRODUCT - POST /api/hotel/products
+     * ========================================================================
+     * Creates a new product for a specific hotel.
+     * Validates that the hotel exists and product name is unique within the hotel.
      */
-    @Operation(summary = "Create a new product")
+    @Operation(summary = "Create a new product", 
+               description = "Creates a new product for a hotel with validation")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Product created successfully"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "400", description = "Bad request - validation failed"),
         @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @PostMapping
@@ -44,12 +64,17 @@ public class ProductController {
     }
 
     /**
-     * Update an existing product
+     * ========================================================================
+     * UPDATE PRODUCT - PUT /api/hotel/products/{id}
+     * ========================================================================
+     * Updates an existing product by its ID.
+     * Validates product existence and hotel ownership before updating.
      */
-    @Operation(summary = "Update an existing product by its ID")
+    @Operation(summary = "Update an existing product by its ID", 
+               description = "Updates product details with validation")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Product updated successfully"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "400", description = "Bad request - validation failed"),
         @ApiResponse(responseCode = "403", description = "Access denied"),
         @ApiResponse(responseCode = "404", description = "Product not found")
     })
@@ -71,9 +96,14 @@ public class ProductController {
     }
 
     /**
-     * Get product by ID
+     * ========================================================================
+     * GET PRODUCT BY ID - GET /api/hotel/products/{id}
+     * ========================================================================
+     * Retrieves a product by its ID using hotel and product information.
+     * Confirms ownership by the specified hotel.
      */
-    @Operation(summary = "Get details of a product by its ID")
+    @Operation(summary = "Get details of a product by its ID", 
+               description = "Retrieves product information using hotel validation")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Product found"),
         @ApiResponse(responseCode = "404", description = "Product not found"),
@@ -94,26 +124,36 @@ public class ProductController {
     }
 
     /**
-     * Get all products
+     * ========================================================================
+     * GET PRODUCTS BY USER - GET /api/hotel/products?userId=123
+     * ========================================================================
+     * Retrieves all products available to a specific user.
+     * Utilizes user ID for filtering.
      */
-    @Operation(summary = "Get a list of all products for a hotel")
+    @Operation(summary = "Get a list of all products for a user", 
+               description = "Retrieves products by user ID for personalized access")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Products retrieved successfully"),
         @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts(
-            @Parameter(description = "Hotel ID", example = "1")
-            @RequestParam Long hotelId
+            @Parameter(description = "User ID", example = "123")
+            @RequestParam Long userId
     ) {
-        List<ProductResponse> products = productService.getAllProducts(hotelId);
+        List<ProductResponse> products = productService.getProductsByUserId(userId);
         return ResponseEntity.ok(products);
     }
 
     /**
-     * Delete a product
+     * ========================================================================
+     * DELETE PRODUCT - DELETE /api/hotel/products/{id}
+     * ========================================================================
+     * Deletes a product using its ID from a specified hotel.
+     * Checks the product's existence and ownership before deletion.
      */
-    @Operation(summary = "Delete a product by its ID")
+    @Operation(summary = "Delete a product by its ID", 
+               description = "Removes a product ensuring proper validation")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Product not found"),

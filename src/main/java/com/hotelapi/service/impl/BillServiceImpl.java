@@ -2,6 +2,7 @@ package com.hotelapi.service.impl;
 
 import com.hotelapi.dto.BillDto;
 import com.hotelapi.dto.BillItemDto;
+import com.hotelapi.dto.BillStatsDto;
 import com.hotelapi.dto.MobileBillRequest;
 import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.dto.WhatsAppMessageRequest;
@@ -19,8 +20,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -137,21 +142,77 @@ public class BillServiceImpl implements BillService {
         try {
             boolean updated = false;
 
-            if (dto.getDiscount() != null) {
-                existingBill.setDiscount(dto.getDiscount());
-                updated = true;
+            // Update bill items if provided
+            if (dto.getItems() != null && !dto.getItems().isEmpty()) {
+                // Get existing items
+                List<BillItem> existingItems = existingBill.getItems();
+                
+                // Update existing items based on productId matching
+                for (BillItemDto itemDto : dto.getItems()) {
+                    // Find the existing item by matching productId or by position
+                    BillItem existingItem = existingItems.stream()
+                            .filter(item -> {
+                                // Try to find product by name or by position
+                                Product product = productRepository.findById(itemDto.getProductId()).orElse(null);
+                                return product != null && item.getItemName().equals(product.getProductName());
+                            })
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (existingItem != null) {
+                        // Update quantity and price
+                        if (itemDto.getQuantity() != null) {
+                            existingItem.setQuantity(itemDto.getQuantity());
+                        }
+                        if (itemDto.getPrice() != null) {
+                            existingItem.setUnitPrice(itemDto.getPrice());
+                        }
+                        
+                        // Recalculate item total
+                        double itemTotal = existingItem.getQuantity() * existingItem.getUnitPrice();
+                        existingItem.setTotal(itemTotal);
+                        updated = true;
+                    }
+                }
+                
+                // Recalculate subtotal, tax, and total after item updates
+                if (updated) {
+                    double newSubtotal = existingItems.stream().mapToDouble(BillItem::getTotal).sum();
+                    existingBill.setSubtotal(newSubtotal);
+                    
+                    // Apply discount if provided, otherwise keep existing
+                    double discount = dto.getDiscount() != null ? dto.getDiscount() : existingBill.getDiscount();
+                    existingBill.setDiscount(discount);
+                    
+                    // Calculate tax (12%)
+                    double tax = newSubtotal * 0.12;
+                    existingBill.setTax(tax);
+                    
+                    // Calculate final total
+                    existingBill.setTotal(newSubtotal + tax - discount);
+                }
             }
-            if (dto.getSubtotal() != null) {
-                existingBill.setSubtotal(dto.getSubtotal());
-                updated = true;
-            }
-            if (dto.getTax() != null) {
-                existingBill.setTax(dto.getTax());
-                updated = true;
-            }
-            if (dto.getTotal() != null) {
-                existingBill.setTotal(dto.getTotal());
-                updated = true;
+
+            // Update other bill-level fields if items were not updated
+            if (!updated) {
+                if (dto.getDiscount() != null) {
+                    existingBill.setDiscount(dto.getDiscount());
+                    // Recalculate total with new discount
+                    existingBill.setTotal(existingBill.getSubtotal() + existingBill.getTax() - dto.getDiscount());
+                    updated = true;
+                }
+                if (dto.getSubtotal() != null) {
+                    existingBill.setSubtotal(dto.getSubtotal());
+                    updated = true;
+                }
+                if (dto.getTax() != null) {
+                    existingBill.setTax(dto.getTax());
+                    updated = true;
+                }
+                if (dto.getTotal() != null) {
+                    existingBill.setTotal(dto.getTotal());
+                    updated = true;
+                }
             }
 
             if (!updated) {
@@ -260,5 +321,83 @@ public class BillServiceImpl implements BillService {
         response.setItems(itemSummaries);
 
         return response;
+    }
+
+    @Override
+    public List<Bill> getBillsByUserId(Long userId) {
+        return billRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<Bill> getBillsByProductName(String productName) {
+        return billRepository.findByItems_ItemNameContainingIgnoreCase(productName);
+    }
+
+    @Override
+    public List<Bill> getBillsByDateRange(Long userId, String from, String to) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime fromDate = LocalDate.parse(from, formatter).atStartOfDay();
+        LocalDateTime toDate = LocalDate.parse(to, formatter).atTime(23, 59, 59);
+        
+        return billRepository.findByCreatedAtBetweenAndUserId(fromDate, toDate, userId);
+    }
+
+    @Override
+    public BillStatsDto getBillStats(String type) {
+        List<Bill> allBills = billRepository.findAll();
+        
+        BillStatsDto stats = new BillStatsDto();
+        stats.setType(type);
+        stats.setTotalBills((long) allBills.size());
+        stats.setTotalRevenue(allBills.stream().mapToDouble(Bill::getTotal).sum());
+        stats.setAverageBillAmount(allBills.stream().mapToDouble(Bill::getTotal).average().orElse(0.0));
+        
+        List<BillStatsDto.StatItem> details = new ArrayList<>();
+        
+        if ("monthly".equals(type)) {
+            Map<String, List<Bill>> monthlyBills = allBills.stream()
+                    .collect(Collectors.groupingBy(bill -> 
+                        bill.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM"))));
+            
+            for (Map.Entry<String, List<Bill>> entry : monthlyBills.entrySet()) {
+                BillStatsDto.StatItem item = new BillStatsDto.StatItem();
+                item.setLabel(entry.getKey());
+                item.setCount((long) entry.getValue().size());
+                item.setAmount(entry.getValue().stream().mapToDouble(Bill::getTotal).sum());
+                item.setPeriod(entry.getKey());
+                details.add(item);
+            }
+        } else if ("weekly".equals(type)) {
+            Map<String, List<Bill>> weeklyBills = allBills.stream()
+                    .collect(Collectors.groupingBy(bill -> 
+                        bill.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-ww"))));
+            
+            for (Map.Entry<String, List<Bill>> entry : weeklyBills.entrySet()) {
+                BillStatsDto.StatItem item = new BillStatsDto.StatItem();
+                item.setLabel("Week " + entry.getKey());
+                item.setCount((long) entry.getValue().size());
+                item.setAmount(entry.getValue().stream().mapToDouble(Bill::getTotal).sum());
+                item.setPeriod(entry.getKey());
+                details.add(item);
+            }
+        } else if ("productwise".equals(type)) {
+            Map<String, List<BillItem>> productItems = new HashMap<>();
+            for (Bill bill : allBills) {
+                for (BillItem item : bill.getItems()) {
+                    productItems.computeIfAbsent(item.getItemName(), k -> new ArrayList<>()).add(item);
+                }
+            }
+            
+            for (Map.Entry<String, List<BillItem>> entry : productItems.entrySet()) {
+                BillStatsDto.StatItem item = new BillStatsDto.StatItem();
+                item.setLabel(entry.getKey());
+                item.setCount((long) entry.getValue().size());
+                item.setAmount(entry.getValue().stream().mapToDouble(BillItem::getTotal).sum());
+                details.add(item);
+            }
+        }
+        
+        stats.setDetails(details);
+        return stats;
     }
 }

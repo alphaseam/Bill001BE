@@ -47,4 +47,10 @@ public class Product {
     @Schema(description = "Hotel that owns this product")
     private Hotel hotel;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @Schema(description = "User who owns this product")
+    private User user;
+
 }

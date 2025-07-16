@@ -32,6 +32,11 @@ public class Bill {
     @Schema(description = "Customer associated with this bill")
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @Schema(description = "User associated with this bill")
+    private User user;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Schema(description = "List of items in the bill")

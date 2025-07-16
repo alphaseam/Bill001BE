@@ -16,4 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Added for getting all products by hotel ID
     List<Product> findByHotelHotelId(Long hotelId);
+
+    // Added for getting all products by user ID
+    List<Product> findByUserId(Long userId);
 }

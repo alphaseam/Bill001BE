@@ -15,5 +15,7 @@ public interface ProductService {
 
     List<ProductResponse> getAllProducts(Long hotelId);
 
+    List<ProductResponse> getProductsByUserId(Long userId);
+
     void deleteProduct(Long hotelId, Long productId);
 }

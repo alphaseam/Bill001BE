@@ -1,6 +1,7 @@
 package com.hotelapi.controller;
 
 import com.hotelapi.dto.BillDto;
+import com.hotelapi.dto.BillStatsDto;
 import com.hotelapi.dto.MobileBillRequest;
 import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.entity.Bill;
@@ -70,6 +71,39 @@ public class BillController {
     public ResponseEntity<String> deleteBill(@PathVariable Long id) {
         billService.deleteBill(id);
         return ResponseEntity.ok("Bill deleted successfully.");
+    }
+
+    // ***** FILTER ENDPOINTS *****
+    
+    @GetMapping("/bills")
+    @Operation(summary = "Get bills by user ID")
+    public ResponseEntity<List<Bill>> getBillsByUserId(@RequestParam Long userId) {
+        List<Bill> bills = billService.getBillsByUserId(userId);
+        return ResponseEntity.ok(bills);
+    }
+
+    @GetMapping("/bills/by-product")
+    @Operation(summary = "Get bills by product name")
+    public ResponseEntity<List<Bill>> getBillsByProductName(@RequestParam String productName) {
+        List<Bill> bills = billService.getBillsByProductName(productName);
+        return ResponseEntity.ok(bills);
+    }
+
+    @GetMapping("/bills/by-date-range")
+    @Operation(summary = "Get bills by date range and user ID")
+    public ResponseEntity<List<Bill>> getBillsByDateRange(
+            @RequestParam Long userId,
+            @RequestParam String from,
+            @RequestParam String to) {
+        List<Bill> bills = billService.getBillsByDateRange(userId, from, to);
+        return ResponseEntity.ok(bills);
+    }
+
+    @GetMapping("/admin/bills/stats")
+    @Operation(summary = "Get bill statistics")
+    public ResponseEntity<BillStatsDto> getBillStats(@RequestParam String type) {
+        BillStatsDto stats = billService.getBillStats(type);
+        return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/download-invoice/{billId}")

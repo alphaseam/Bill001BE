@@ -48,7 +48,10 @@ public class DataInitializer implements CommandLineRunner {
         userRepo.findByEmail("admin12@taj.com").ifPresentOrElse(
                 user -> log.info("Admin user already exists."),
                 () -> {
-                    userRepo.save(new User(null, "admin12@taj.com", "admin123"));
+                    userRepo.save(User.builder()
+                            .email("admin12@taj.com")
+                            .password("admin123")
+                            .build());
                     log.info("Inserted admin user");
                 }
         );

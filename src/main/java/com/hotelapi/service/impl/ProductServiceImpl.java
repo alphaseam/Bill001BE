@@ -105,6 +105,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductResponse> getProductsByUserId(Long userId) {
+        // fetch all products belonging to this user
+        List<Product> products = productRepository.findByUserId(userId);
+
+        return products.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void deleteProduct(Long hotelId, Long productId) {
         // validate product existence and ownership
         Product product = productRepository.findById(productId)

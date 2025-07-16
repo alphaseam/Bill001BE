@@ -1,6 +1,7 @@
 package com.hotelapi.service;
 
 import com.hotelapi.dto.BillDto;
+import com.hotelapi.dto.BillStatsDto;
 import com.hotelapi.dto.MobileBillRequest;
 import com.hotelapi.dto.MobileBillResponse;
 import com.hotelapi.entity.Bill;
@@ -18,6 +19,14 @@ public interface BillService {
     Bill updateBill(Long id, BillDto dto);
 
     void deleteBill(Long id);
+
+    List<Bill> getBillsByUserId(Long userId);
+
+    List<Bill> getBillsByProductName(String productName);
+
+    List<Bill> getBillsByDateRange(Long userId, String from, String to);
+
+    BillStatsDto getBillStats(String type);
 
     // New method for mobile bill creation
     MobileBillResponse createMobileBill(MobileBillRequest request);
