@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * ============================================================================
  * TICKET 2: HOTEL PRODUCT MANAGEMENT CONTROLLER
- * ============================================================================
  * This controller handles all CRUD operations and filtering for products
  * as per the requirements specified in Ticket 2.
  * 
@@ -29,7 +27,6 @@ import java.util.List;
  * - GET /api/hotel/products/{id} - Get product by ID
  * - PUT /api/hotel/products/{id} - Update product
  * - DELETE /api/hotel/products/{id} - Delete product
- * ============================================================================
  */
 @RestController
 @RequestMapping("/api/hotel/products")
@@ -40,9 +37,7 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * ========================================================================
      * CREATE PRODUCT - POST /api/hotel/products
-     * ========================================================================
      * Creates a new product for a specific hotel.
      * Validates that the hotel exists and product name is unique within the hotel.
      */
@@ -64,9 +59,7 @@ public class ProductController {
     }
 
     /**
-     * ========================================================================
      * UPDATE PRODUCT - PUT /api/hotel/products/{id}
-     * ========================================================================
      * Updates an existing product by its ID.
      * Validates product existence and hotel ownership before updating.
      */
@@ -96,9 +89,7 @@ public class ProductController {
     }
 
     /**
-     * ========================================================================
      * GET PRODUCT BY ID - GET /api/hotel/products/{id}
-     * ========================================================================
      * Retrieves a product by its ID using hotel and product information.
      * Confirms ownership by the specified hotel.
      */
@@ -124,9 +115,7 @@ public class ProductController {
     }
 
     /**
-     * ========================================================================
      * GET PRODUCTS BY USER - GET /api/hotel/products?userId=123
-     * ========================================================================
      * Retrieves all products available to a specific user.
      * Utilizes user ID for filtering.
      */
@@ -146,9 +135,7 @@ public class ProductController {
     }
 
     /**
-     * ========================================================================
      * DELETE PRODUCT - DELETE /api/hotel/products/{id}
-     * ========================================================================
      * Deletes a product using its ID from a specified hotel.
      * Checks the product's existence and ownership before deletion.
      */

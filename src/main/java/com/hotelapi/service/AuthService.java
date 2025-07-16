@@ -15,6 +15,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public String register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -37,8 +38,8 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        String accessToken = "token";
-        String refreshToken = "token";
+        String accessToken = jwtService.generateAccessToken(user.getEmail());
+        String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
         return new LoginResponse(true, "Login successful", accessToken, refreshToken);
     }

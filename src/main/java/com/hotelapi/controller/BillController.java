@@ -73,7 +73,7 @@ public class BillController {
         return ResponseEntity.ok("Bill deleted successfully.");
     }
 
-    // ***** FILTER ENDPOINTS *****
+    // FILTER ENDPOINTS 
     
     @GetMapping("/bills")
     @Operation(summary = "Get bills by user ID")

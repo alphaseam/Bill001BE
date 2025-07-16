@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * ============================================================================
+
  * TICKET 3: HOTEL BILL MANAGEMENT CONTROLLER
- * ============================================================================
  * This controller handles all CRUD operations and filtering for bills
  * as per the requirements specified in Ticket 3.
  * 
@@ -28,7 +27,6 @@ import java.util.List;
  * - GET /api/hotel/bills/{billId} - Get bill by ID
  * - PUT /api/hotel/bills/{billId} - Update bill (price, quantity, discount)
  * - DELETE /api/hotel/bills/{billId} - Delete bill
- * ============================================================================
  */
 @RestController
 @RequestMapping("/api/hotel/bills")
@@ -39,9 +37,7 @@ public class HotelBillController {
     private final BillService billService;
 
     /**
-     * ========================================================================
      * CREATE BILL - POST /api/hotel/bills
-     * ========================================================================
      * Creates a new bill with the provided bill details.
      * Automatically calculates subtotal, tax, and total based on items.
      */
@@ -56,9 +52,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * GET BILLS BY USER - GET /api/hotel/bills?userId=123
-     * ========================================================================
      * Retrieves all bills associated with a specific user ID.
      */
     @GetMapping
@@ -73,9 +67,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * GET BILLS BY PRODUCT - GET /api/hotel/bills/by-product?productName=Water Bottle
-     * ========================================================================
      * Filters bills that contain items with the specified product name.
      */
     @GetMapping("/by-product")
@@ -90,9 +82,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * GET BILLS BY DATE RANGE - GET /api/hotel/bills/by-date-range?userId=123&from=2025-07-01&to=2025-07-10
-     * ========================================================================
      * Filters bills within a specific date range for a given user.
      */
     @GetMapping("/by-date-range")
@@ -111,9 +101,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * GET BILL BY ID - GET /api/hotel/bills/{billId}
-     * ========================================================================
      * Retrieves a specific bill by its ID.
      */
     @GetMapping("/{billId}")
@@ -128,9 +116,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * UPDATE BILL - PUT /api/hotel/bills/{billId}
-     * ========================================================================
      * Updates an existing bill including price, quantity, and discount.
      * Automatically recalculates subtotal, tax, and total.
      */
@@ -147,9 +133,7 @@ public class HotelBillController {
     }
 
     /**
-     * ========================================================================
      * DELETE BILL - DELETE /api/hotel/bills/{billId}
-     * ========================================================================
      * Deletes a specific bill by its ID.
      */
     @DeleteMapping("/{billId}")
