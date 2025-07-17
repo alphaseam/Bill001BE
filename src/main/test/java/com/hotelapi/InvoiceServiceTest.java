@@ -3,7 +3,6 @@ package com.hotelapi;
 import com.hotelapi.entity.*;
 import com.hotelapi.repository.BillRepository;
 import com.hotelapi.service.InvoiceService;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -29,12 +28,7 @@ class InvoiceServiceTest {
 
     private Bill mockBill;
 
-    /**
-     * Setup method runs before each test. It:
-     * - Ensures the `invoices` directory exists.
-     * - Initializes `InvoiceService` with the test repository and output path.
-     * - Creates a mock `Bill` object with customer and bill items.
-     */
+    // Set up the mock Bill and InvoiceService before each test
     @BeforeEach
     void setup() {
         File invoiceDir = new File("invoices");
@@ -67,9 +61,7 @@ class InvoiceServiceTest {
         mockBill.setTotal(2080.0);
     }
 
-
-     // Clean-up method that deletes the generated invoice file after each test.
-
+    // Delete generated PDF file after each test
     @AfterEach
     void cleanUp() {
         Path pdf = Paths.get("invoices", "Invoice_INV-1001.pdf");
@@ -78,65 +70,43 @@ class InvoiceServiceTest {
         }
     }
 
-    /**
-     * Test case to verify successful invoice PDF generation.
-     * It checks that the returned file path is correct and the file exists.
-     */
+    // Test for successful invoice PDF generation
     @Test
     void testGenerateInvoicePdf_success() throws Exception {
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-
-        assertNotNull(path, "PDF path should not be null");
-        assertTrue(path.endsWith(".pdf"), "PDF path should end with .pdf");
-
-        File generated = new File(path);
-        assertTrue(generated.exists(), "Generated PDF file should exist");
-
+        assertNotNull(path);
+        assertTrue(path.endsWith(".pdf"));
+        assertTrue(new File(path).exists());
         verify(billRepository, times(1)).findById(1L);
     }
 
-
-     // Test case to ensure exception is thrown when the bill is not found.
-
+    // Test when bill is not found, should throw exception
     @Test
     void testGenerateInvoicePdf_billNotFound() {
         when(billRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(Exception.class,
-                () -> invoiceService.generateInvoicePdf(1L));
+        Exception exception = assertThrows(Exception.class, () -> invoiceService.generateInvoicePdf(1L));
         assertEquals("Bill not found with ID: 1", exception.getMessage());
     }
 
-
-     // Verifies that the PDF file is created and is not empty.
-
+    // Test that generated PDF file exists and is not empty
     @Test
     void testGeneratedPdf_fileExists() throws Exception {
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-        File file = new File(path);
-
-        assertTrue(file.exists(), "PDF file should exist after generation");
-        assertTrue(file.length() > 0, "PDF file should not be empty");
+        assertTrue(new File(path).exists());
+        assertTrue(new File(path).length() > 0);
     }
 
-
-     // Confirms that the generated PDF has the correct filename format.
-
+    // Test generated file name is as expected
     @Test
     void testGenerateInvoicePdf_fileHasCorrectName() throws Exception {
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-        assertTrue(path.contains("Invoice_INV-1001.pdf"), "Should contain correct invoice filename");
+        assertTrue(path.contains("Invoice_INV-1001.pdf"));
     }
 
-
-     // Verifies that the bill repository is called exactly once.
-
+    // Test repository is called exactly once
     @Test
     void testRepositoryCalledOnce() throws Exception {
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
@@ -144,23 +114,16 @@ class InvoiceServiceTest {
         verify(billRepository, times(1)).findById(1L);
     }
 
-    /**
-     * Tests the scenario where the bill has a zero discount.
-     * Ensures that PDF is still generated successfully.
-     */
+    // Test PDF generation when discount is zero
     @Test
     void testGenerateInvoicePdf_handlesZeroDiscount() throws Exception {
         mockBill.setDiscount(0.0);
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-        File file = new File(path);
-        assertTrue(file.exists(), "PDF should exist with zero discount");
+        assertTrue(new File(path).exists());
     }
 
-
-     // Tests PDF generation with multiple bill items.
-
+    // Test PDF generation with multiple bill items
     @Test
     void testGenerateInvoicePdf_handlesMultipleItems() throws Exception {
         BillItem extraItem = new BillItem();
@@ -169,39 +132,71 @@ class InvoiceServiceTest {
         extraItem.setUnitPrice(500.0);
         extraItem.setDiscount(0.0);
         extraItem.setTotal(500.0);
-
         mockBill.setItems(List.of(mockBill.getItems().get(0), extraItem));
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-        assertTrue(path.endsWith(".pdf"), "Should generate PDF for multiple items");
+        assertTrue(path.endsWith(".pdf"));
     }
 
-
-     // Confirms the generated PDF file is stored inside the `invoices/` directory.
-
+    // Test that generated path starts with invoices directory
     @Test
     void testInvoiceDirectoryPrefix() throws Exception {
         when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
-
         String path = invoiceService.generateInvoicePdf(1L);
-        assertTrue(path.startsWith("invoices/") || path.startsWith("invoices\\"), "Path should be under invoices/");
+        assertTrue(path.startsWith("invoices/") || path.startsWith("invoices\\"));
     }
 
-
-     // Validates that the customer name in the mock bill entity is correctly set.
-
+    // Test customer name in mock bill is correct
     @Test
     void testCustomerNameInBillEntity() {
         assertEquals("Test Customer", mockBill.getCustomer().getName());
     }
 
-
-      // Verifies that the total amount calculation is correct.
-
+    // Test that total is calculated as subtotal + tax - discount
     @Test
     void testTotalCalculationIntegrity() {
         double expectedTotal = mockBill.getSubtotal() + mockBill.getTax() - mockBill.getDiscount();
-        assertEquals(expectedTotal, mockBill.getTotal(), "Total amount calculation should be correct");
+        assertEquals(expectedTotal, mockBill.getTotal());
+    }
+
+    // Test PDF generation with no bill items
+    @Test
+    void testGenerateInvoicePdf_withEmptyBillItems() throws Exception {
+        mockBill.setItems(List.of());
+        when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
+        String path = invoiceService.generateInvoicePdf(1L);
+        assertTrue(new File(path).exists());
+    }
+
+    // Test long customer name is handled gracefully
+    @Test
+    void testGenerateInvoicePdf_withLongCustomerName() throws Exception {
+        Customer longNameCustomer = new Customer();
+        longNameCustomer.setName("Very Long Customer Name That Should Still Work Properly In PDF Without Breaking Layout");
+        mockBill.setCustomer(longNameCustomer);
+        when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
+        String path = invoiceService.generateInvoicePdf(1L);
+        assertTrue(new File(path).exists());
+    }
+
+    // Test directory is created if not already present
+    @Test
+    void testDirectoryCreatedIfNotExist() throws Exception {
+        File dir = new File("invoices");
+        if (dir.exists()) {
+            dir.delete(); // delete to check auto-creation
+        }
+        when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
+        String path = invoiceService.generateInvoicePdf(1L);
+        assertTrue(new File(path).exists());
+        assertTrue(new File("invoices").exists());
+    }
+
+    // Test generated PDF has a reasonable minimum size
+    @Test
+    void testPdfHasMinimumSize_whenItemPresent() throws Exception {
+        when(billRepository.findById(1L)).thenReturn(Optional.of(mockBill));
+        String path = invoiceService.generateInvoicePdf(1L);
+        assertTrue(new File(path).length() > 100);
     }
 }
