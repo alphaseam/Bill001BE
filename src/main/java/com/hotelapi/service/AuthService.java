@@ -38,8 +38,8 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        String accessToken = jwtService.generateAccessToken(user.getEmail());
-        String refreshToken = jwtService.generateRefreshToken(user.getEmail());
+         String accessToken = jwtService.generateAccessToken(user.getEmail());
+         String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
         return new LoginResponse(true, "Login successful", accessToken, refreshToken);
     }
