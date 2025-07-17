@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * Required Endpoints:
  * - POST /api/hotel/products - Create a new product
- * - GET /api/hotel/products?userId=123 - Get products by user ID
+ * - GET /api/hotel/products?hotelId=123 - Get products by hotel ID
  * - GET /api/hotel/products/{id} - Get product by ID
  * - PUT /api/hotel/products/{id} - Update product
  * - DELETE /api/hotel/products/{id} - Delete product
@@ -115,22 +115,22 @@ public class ProductController {
     }
 
     /**
-     * GET PRODUCTS BY USER - GET /api/hotel/products?userId=123
-     * Retrieves all products available to a specific user.
-     * Utilizes user ID for filtering.
+     * GET PRODUCTS BY HOTEL - GET /api/hotel/products?hotelId=123
+     * Retrieves all products available for a specific hotel.
+     * Utilizes hotel ID for filtering.
      */
-    @Operation(summary = "Get a list of all products for a user", 
-               description = "Retrieves products by user ID for personalized access")
+    @Operation(summary = "Get a list of all products for a hotel", 
+               description = "Retrieves products by hotel ID for hotel-specific access")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Products retrieved successfully"),
         @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts(
-            @Parameter(description = "User ID", example = "123")
-            @RequestParam Long userId
+            @Parameter(description = "Hotel ID", example = "123")
+            @RequestParam Long hotelId
     ) {
-        List<ProductResponse> products = productService.getProductsByUserId(userId);
+        List<ProductResponse> products = productService.getAllProducts(hotelId);
         return ResponseEntity.ok(products);
     }
 
