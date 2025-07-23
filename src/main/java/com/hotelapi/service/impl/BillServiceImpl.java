@@ -133,100 +133,88 @@ public class BillServiceImpl implements BillService {
         return bills;
     }
 
-    @Override
+   @Override
     @Transactional
     public Bill updateBill(Long id, BillDto dto) {
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new BillNotFoundException("Bill not found with ID: " + id));
-
-        try {
-            boolean updated = false;
-
-            // Update bill items if provided
-            if (dto.getItems() != null && !dto.getItems().isEmpty()) {
-                // Get existing items
-                List<BillItem> existingItems = existingBill.getItems();
-                
-                // Update existing items based on productId matching
-                for (BillItemDto itemDto : dto.getItems()) {
-                    // Find the existing item by matching productId or by position
-                    BillItem existingItem = existingItems.stream()
-                            .filter(item -> {
-                                // Try to find product by name or by position
-                                Product product = productRepository.findById(itemDto.getProductId()).orElse(null);
-                                return product != null && item.getItemName().equals(product.getProductName());
-                            })
-                            .findFirst()
-                            .orElse(null);
-                    
-                    if (existingItem != null) {
-                        // Update quantity and price
-                        if (itemDto.getQuantity() != null) {
-                            existingItem.setQuantity(itemDto.getQuantity());
-                        }
-                        if (itemDto.getPrice() != null) {
-                            existingItem.setUnitPrice(itemDto.getPrice());
-                        }
-                        
-                        // Recalculate item total
-                        double itemTotal = existingItem.getQuantity() * existingItem.getUnitPrice();
-                        existingItem.setTotal(itemTotal);
-                        updated = true;
-                    }
+ 
+        boolean updated = false;
+ 
+        if (dto.getItems() != null && !dto.getItems().isEmpty()) {
+            List<BillItem> newItems = new ArrayList<>();
+            double subtotal = 0;
+ 
+            for (BillItemDto itemDto : dto.getItems()) {
+                Product product = productRepository.findById(itemDto.getProductId())
+                        .orElseThrow(() -> new InvalidInputException("Product not found with ID: " + itemDto.getProductId()));
+ 
+                if (itemDto.getQuantity() == null || itemDto.getQuantity() <= 0) {
+                    throw new InvalidInputException("Quantity must be positive for product ID " + itemDto.getProductId());
                 }
-                
-                // Recalculate subtotal, tax, and total after item updates
-                if (updated) {
-                    double newSubtotal = existingItems.stream().mapToDouble(BillItem::getTotal).sum();
-                    existingBill.setSubtotal(newSubtotal);
-                    
-                    // Apply discount if provided, otherwise keep existing
-                    double discount = dto.getDiscount() != null ? dto.getDiscount() : existingBill.getDiscount();
-                    existingBill.setDiscount(discount);
-                    
-                    // Calculate tax (12%)
-                    double tax = newSubtotal * 0.12;
-                    existingBill.setTax(tax);
-                    
-                    // Calculate final total
-                    existingBill.setTotal(newSubtotal + tax - discount);
+ 
+                if (itemDto.getPrice() == null || itemDto.getPrice() <= 0) {
+                    throw new InvalidInputException("Price must be positive for product ID " + itemDto.getProductId());
                 }
+ 
+                double itemTotal = itemDto.getQuantity() * itemDto.getPrice();
+                subtotal += itemTotal;
+ 
+                BillItem billItem = BillItem.builder()
+                        .itemName(product.getProductName())
+                        .quantity(itemDto.getQuantity())
+                        .unitPrice(itemDto.getPrice())
+                        .discount(0.0)
+                        .total(itemTotal)
+                        .bill(existingBill) // very important to re-link!
+                        .build();
+ 
+                newItems.add(billItem);
             }
-
-            // Update other bill-level fields if items were not updated
-            if (!updated) {
-                if (dto.getDiscount() != null) {
-                    existingBill.setDiscount(dto.getDiscount());
-                    // Recalculate total with new discount
-                    existingBill.setTotal(existingBill.getSubtotal() + existingBill.getTax() - dto.getDiscount());
-                    updated = true;
-                }
-                if (dto.getSubtotal() != null) {
-                    existingBill.setSubtotal(dto.getSubtotal());
-                    updated = true;
-                }
-                if (dto.getTax() != null) {
-                    existingBill.setTax(dto.getTax());
-                    updated = true;
-                }
-                if (dto.getTotal() != null) {
-                    existingBill.setTotal(dto.getTotal());
-                    updated = true;
-                }
-            }
-
-            if (!updated) {
-                throw new InvalidUpdateException("No valid fields provided for update.");
-            }
-
-            return billRepository.save(existingBill);
-
-        } catch (InvalidUpdateException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error while updating bill ID {}: {}", id, e.getMessage(), e);
-            throw new DatabaseException("Internal error occurred while updating the bill.");
+ 
+            // Clear and replace items
+            existingBill.getItems().clear();
+            existingBill.getItems().addAll(newItems);
+ 
+            double tax = subtotal * 0.12;
+            double discount = dto.getDiscount() != null ? dto.getDiscount() : 0.0;
+            double total = subtotal + tax - discount;
+ 
+            existingBill.setSubtotal(subtotal);
+            existingBill.setTax(tax);
+            existingBill.setDiscount(discount);
+            existingBill.setTotal(total);
+ 
+            updated = true;
         }
+ 
+        // Optional: if only discount or tax is being updated without items
+        if (!updated) {
+            if (dto.getDiscount() != null) {
+                existingBill.setDiscount(dto.getDiscount());
+                double newTotal = existingBill.getSubtotal() + existingBill.getTax() - dto.getDiscount();
+                existingBill.setTotal(newTotal);
+                updated = true;
+            }
+            if (dto.getSubtotal() != null) {
+                existingBill.setSubtotal(dto.getSubtotal());
+                updated = true;
+            }
+            if (dto.getTax() != null) {
+                existingBill.setTax(dto.getTax());
+                updated = true;
+            }
+            if (dto.getTotal() != null) {
+                existingBill.setTotal(dto.getTotal());
+                updated = true;
+            }
+        }
+ 
+        if (!updated) {
+            throw new InvalidUpdateException("No valid fields provided for update.");
+        }
+ 
+        return billRepository.save(existingBill);
     }
 
     @Override

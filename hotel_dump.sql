@@ -33,7 +33,7 @@ CREATE TABLE `bill_items` (
   PRIMARY KEY (`id`),
   KEY `FKj9o7g8krc56gf6t6f0sy4ic5p` (`bill_id`),
   CONSTRAINT `FKj9o7g8krc56gf6t6f0sy4ic5p` FOREIGN KEY (`bill_id`) REFERENCES `bills` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=224 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=232 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `bill_items` (
 
 LOCK TABLES `bill_items` WRITE;
 /*!40000 ALTER TABLE `bill_items` DISABLE KEYS */;
-INSERT INTO `bill_items` VALUES (196,0,'Tea',2,20,10,100),(197,0,'Coffee',1,20,20,100),(200,0,'Tea',2,20,10,102),(201,0,'Coffee',1,20,20,102),(202,0,'Tea',2,20,10,103),(203,0,'Coffee',1,20,20,103),(204,0,'Tea',2,20,10,104),(205,0,'Coffee',1,20,20,104),(206,0,'Tea',2,20,10,105),(207,0,'Coffee',1,20,20,105),(220,0,'Tea',2,20,10,112),(221,0,'Coffee',1,20,20,112),(222,0,'Tea',2,20,10,113),(223,0,'Coffee',1,20,20,113);
+INSERT INTO `bill_items` VALUES (196,0,'Tea',2,20,10,100),(197,0,'Coffee',1,20,20,100),(200,0,'Tea',2,20,10,102),(201,0,'Coffee',1,20,20,102),(202,0,'Tea',2,20,10,103),(203,0,'Coffee',1,20,20,103),(204,0,'Tea',2,20,10,104),(205,0,'Coffee',1,20,20,104),(206,0,'Tea',2,20,10,105),(207,0,'Coffee',1,20,20,105),(220,0,'Tea',2,20,10,112),(221,0,'Coffee',1,20,20,112),(222,0,'Tea',2,20,10,113),(223,0,'Coffee',1,20,20,113),(224,0,'Tea',2,20,10,114),(225,0,'Coffee',1,20,20,114),(226,0,'Tea',2,20,10,115),(227,0,'Coffee',1,20,20,115),(228,0,'Tea',2,20,10,116),(229,0,'Coffee',1,20,20,116),(230,0,'Tea',2,20,10,117),(231,0,'Coffee',1,20,20,117);
 /*!40000 ALTER TABLE `bill_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -68,7 +68,7 @@ CREATE TABLE `bills` (
   KEY `FKk8vs7ac9xknv5xp18pdiehpp1` (`user_id`),
   CONSTRAINT `FKk8vs7ac9xknv5xp18pdiehpp1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `FKoy9sc2dmxj2qwjeiiilf3yuxp` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +77,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-INSERT INTO `bills` VALUES (100,'INV-1001','2025-07-14 15:47:36.972798',5,40,7.2,42.2,NULL,NULL),(102,'INV-1001','2025-07-14 17:10:32.187110',5,40,7.2,42.2,NULL,NULL),(103,'INV-1001','2025-07-15 11:57:37.643719',5,40,7.2,42.2,NULL,NULL),(104,'INV-1001','2025-07-15 12:20:12.491786',5,40,7.2,42.2,NULL,NULL),(105,'INV-1001','2025-07-15 12:41:31.743755',5,40,7.2,42.2,NULL,NULL),(112,'INV-1001','2025-07-17 14:53:13.567057',5,40,7.2,42.2,NULL,NULL),(113,'INV-1001','2025-07-17 16:20:53.569655',5,40,7.2,42.2,NULL,NULL);
+INSERT INTO `bills` VALUES (100,'INV-1001','2025-07-14 15:47:36.972798',5,40,7.2,42.2,NULL,NULL),(102,'INV-1001','2025-07-14 17:10:32.187110',5,40,7.2,42.2,NULL,NULL),(103,'INV-1001','2025-07-15 11:57:37.643719',5,40,7.2,42.2,NULL,NULL),(104,'INV-1001','2025-07-15 12:20:12.491786',5,40,7.2,42.2,NULL,NULL),(105,'INV-1001','2025-07-15 12:41:31.743755',5,40,7.2,42.2,NULL,NULL),(112,'INV-1001','2025-07-17 14:53:13.567057',5,40,7.2,42.2,NULL,NULL),(113,'INV-1001','2025-07-17 16:20:53.569655',5,40,7.2,42.2,NULL,NULL),(114,'INV-1001','2025-07-18 11:59:16.485928',5,40,7.2,42.2,NULL,NULL),(115,'INV-1001','2025-07-18 12:33:00.182132',5,40,7.2,42.2,NULL,NULL),(116,'INV-1001','2025-07-18 14:03:34.664370',5,40,7.2,42.2,NULL,NULL),(117,'INV-1001','2025-07-18 16:05:31.262059',5,40,7.2,42.2,NULL,NULL);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -193,7 +193,7 @@ CREATE TABLE `products` (
   KEY `FKdb050tk37qryv15hd932626th` (`user_id`),
   CONSTRAINT `FK4kcfnm4xqk3rkrjpxaqx2rl7p` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`hotel_id`),
   CONSTRAINT `FKdb050tk37qryv15hd932626th` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,7 +202,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (2,'Food',2000,1,_binary '','SOF100','Samosa 1',1,NULL),(3,'Beverage',10,1,_binary '','TEA001','Tea',100,NULL),(4,'Beverage',20,1,_binary '','COF001','Coffee',100,NULL),(6,'Beverage',10,2,_binary '','TEA001','Tea',100,NULL),(7,'Beverage',20,2,_binary '','COF001','Coffee',100,NULL),(12,'Food',2000,1,_binary '','1023','ab',1,NULL),(16,'Food',2500,1,_binary '','DBK001','Dal bati',10,NULL),(18,'Food',200,1,_binary '','KA001','kaju',10,NULL);
+INSERT INTO `products` VALUES (2,'Food',2000,1,_binary '','SOF100','Samosa 1',1,NULL),(3,'Beverage',10,1,_binary '','TEA001','Tea',100,NULL),(4,'Beverage',20,1,_binary '','COF001','Coffee',100,NULL),(6,'Beverage',10,2,_binary '','TEA001','Tea',100,NULL),(7,'Beverage',20,2,_binary '','COF001','Coffee',100,NULL),(12,'Food',2000,1,_binary '','1023','ab',1,NULL),(16,'Food',2500,1,_binary '','DBK001','Dal bati',10,NULL),(18,'Food',200,1,_binary '','KA001','kaju',10,NULL),(19,'Food',300,1,_binary '','PK222','palak ',10,NULL);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -298,4 +298,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-17 16:20:55
+-- Dump completed on 2025-07-18 16:05:31
