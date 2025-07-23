@@ -32,140 +32,151 @@ class ProductServiceImplTest {
     @Mock
     private HotelRepository hotelRepository;
 
-    private Hotel sampleHotel;
-    private Product sampleProduct;
-    private ProductRequest sampleRequest;
+    private Hotel hotel;
+    private Product product;
+    private ProductRequest request;
 
-    // Setup common data before each test
     @BeforeEach
     void setUp() {
-        sampleHotel = new Hotel();
-        sampleHotel.setHotelId(1L);
-        sampleHotel.setHotelName("Sample Hotel");
+        hotel = new Hotel();
+        hotel.setHotelId(1L);
 
-        sampleProduct = Product.builder()
-                .id(10L)
-                .productCode("PTK001")
-                .productName("Paneer Tikka")
-                .category("Food")
-                .quantity(10)
-                .price(250.0)
-                .isActive(true)
-                .hotel(sampleHotel)
-                .build();
+        product = Product.builder()
+                .id(10L).productCode("PTK001").productName("Paneer Tikka")
+                .category("Food").quantity(10).price(250.0)
+                .isActive(true).hotel(hotel).build();
 
-        sampleRequest = new ProductRequest();
-        sampleRequest.setProductName("Paneer Tikka");
-        sampleRequest.setProductCode("PTK001");
-        sampleRequest.setCategory("Food");
-        sampleRequest.setQuantity(10);
-        sampleRequest.setPrice(250.0);
-        sampleRequest.setIsActive(true);
+        request = new ProductRequest();
+        request.setProductName("Paneer Tikka");
+        request.setProductCode("PTK001");
+        request.setCategory("Food");
+        request.setQuantity(10);
+        request.setPrice(250.0);
+        request.setIsActive(true);
     }
 
-    // Test: Successfully create a product
+    // createProduct - success
     @Test
-    void testCreateProduct_Success() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.of(sampleHotel));
-        when(productRepository.findByProductNameAndHotel("Paneer Tikka", sampleHotel)).thenReturn(Optional.empty());
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> {
-            Product p = invocation.getArgument(0);
-            p.setId(100L);
-            return p;
+    void createProduct_Success() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(productRepository.findByProductNameAndHotel("Paneer Tikka", hotel)).thenReturn(Optional.empty());
+        when(productRepository.save(any())).thenAnswer(inv -> {
+            Product saved = inv.getArgument(0);
+            saved.setId(100L);
+            return saved;
         });
 
-        ProductResponse response = productService.createProduct(1L, sampleRequest);
-
-        assertNotNull(response);
+        ProductResponse response = productService.createProduct(1L, request);
         assertEquals("Paneer Tikka", response.getProductName());
         assertEquals(1L, response.getHotelId());
     }
 
-    // Test: Create product fails due to missing hotel
+    // createProduct - hotel not found
     @Test
-    void testCreateProduct_HotelNotFound() {
+    void createProduct_HotelNotFound() {
         when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(InvalidInputException.class, () -> productService.createProduct(1L, sampleRequest));
+        assertThrows(InvalidInputException.class, () -> productService.createProduct(1L, request));
     }
 
-    // Test: Create product fails due to duplicate product name
+    // createProduct - duplicate product name
     @Test
-    void testCreateProduct_DuplicateName() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.of(sampleHotel));
-        when(productRepository.findByProductNameAndHotel("Paneer Tikka", sampleHotel))
-                .thenReturn(Optional.of(sampleProduct));
-
-        assertThrows(InvalidInputException.class, () -> productService.createProduct(1L, sampleRequest));
+    void createProduct_DuplicateProduct() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(productRepository.findByProductNameAndHotel("Paneer Tikka", hotel)).thenReturn(Optional.of(product));
+        assertThrows(InvalidInputException.class, () -> productService.createProduct(1L, request));
     }
 
-    // Test: Successfully update an existing product
+    // updateProduct - success
     @Test
-    void testUpdateProduct_Success() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.of(sampleHotel));
-        when(productRepository.findById(10L)).thenReturn(Optional.of(sampleProduct));
-        when(productRepository.findByProductNameAndHotel("Paneer Tikka", sampleHotel)).thenReturn(Optional.of(sampleProduct));
-        when(productRepository.save(any(Product.class))).thenReturn(sampleProduct);
+    void updateProduct_Success() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(productRepository.findById(10L)).thenReturn(Optional.of(product));
+        when(productRepository.findByProductNameAndHotel("Paneer Tikka", hotel)).thenReturn(Optional.of(product));
+        when(productRepository.save(any())).thenReturn(product);
 
-        ProductResponse response = productService.updateProduct(1L, 10L, sampleRequest);
-
-        assertNotNull(response);
-        assertEquals("Paneer Tikka", response.getProductName());
+        ProductResponse response = productService.updateProduct(1L, 10L, request);
         assertEquals(10L, response.getId());
     }
 
-    // Test: Update product fails due to missing hotel
+    // updateProduct - hotel not found
     @Test
-    void testUpdateProduct_HotelNotFound() {
+    void updateProduct_HotelNotFound() {
         when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(InvalidInputException.class, () -> productService.updateProduct(1L, 10L, sampleRequest));
+        assertThrows(InvalidInputException.class, () -> productService.updateProduct(1L, 10L, request));
     }
 
-    // Test: Update product fails due to missing product
+    // updateProduct - product not found
     @Test
-    void testUpdateProduct_ProductNotFound() {
-        when(hotelRepository.findById(1L)).thenReturn(Optional.of(sampleHotel));
+    void updateProduct_ProductNotFound() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
         when(productRepository.findById(10L)).thenReturn(Optional.empty());
-
-        assertThrows(ProductNotFoundException.class, () -> productService.updateProduct(1L, 10L, sampleRequest));
+        assertThrows(ProductNotFoundException.class, () -> productService.updateProduct(1L, 10L, request));
     }
 
-    // Test: Successfully retrieve a product by ID
+    // updateProduct - duplicate product name with different ID
     @Test
-    void testGetProductById_Success() {
-        when(productRepository.findById(10L)).thenReturn(Optional.of(sampleProduct));
+    void updateProduct_DuplicateOtherId() {
+        Product another = Product.builder().id(99L).productName("Paneer Tikka").hotel(hotel).build();
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(productRepository.findById(10L)).thenReturn(Optional.of(product));
+        when(productRepository.findByProductNameAndHotel("Paneer Tikka", hotel)).thenReturn(Optional.of(another));
+        assertThrows(InvalidInputException.class, () -> productService.updateProduct(1L, 10L, request));
+    }
 
+    // getProductById - success
+    @Test
+    void getProductById_Success() {
+        when(productRepository.findById(10L)).thenReturn(Optional.of(product));
         ProductResponse response = productService.getProductById(1L, 10L);
-
-        assertNotNull(response);
         assertEquals("Paneer Tikka", response.getProductName());
     }
 
-    // Test: Get product by ID fails if product doesn't exist
+    // getProductById - not found
     @Test
-    void testGetProductById_NotFound() {
+    void getProductById_NotFound() {
         when(productRepository.findById(10L)).thenReturn(Optional.empty());
-
         assertThrows(ProductNotFoundException.class, () -> productService.getProductById(1L, 10L));
     }
 
-    // Test: Retrieve all products for a hotel
+    // getAllProducts - success
     @Test
-    void testGetAllProducts() {
-        when(productRepository.findByHotelHotelId(1L)).thenReturn(List.of(sampleProduct, sampleProduct));
-
+    void getAllProducts_Success() {
+        when(productRepository.findByHotelHotelId(1L)).thenReturn(List.of(product));
         List<ProductResponse> responses = productService.getAllProducts(1L);
-
-        assertEquals(2, responses.size());
+        assertEquals(1, responses.size());
     }
 
-    // Test: Successfully delete a product
+    // getProductsByUserId - success
     @Test
-    void testDeleteProduct_Success() {
-        when(productRepository.findById(10L)).thenReturn(Optional.of(sampleProduct));
+    void getProductsByUserId_Success() {
+        when(productRepository.findByUserId(5L)).thenReturn(List.of(product));
+        List<ProductResponse> responses = productService.getProductsByUserId(5L);
+        assertEquals("Paneer Tikka", responses.get(0).getProductName());
+    }
 
+    // deleteProduct - success
+    @Test
+    void deleteProduct_Success() {
+        when(productRepository.findById(10L)).thenReturn(Optional.of(product));
         assertDoesNotThrow(() -> productService.deleteProduct(1L, 10L));
-        verify(productRepository, times(1)).delete(sampleProduct);
+        verify(productRepository, times(1)).delete(product);
+    }
+
+    // deleteProduct - product not found
+    @Test
+    void deleteProduct_NotFound() {
+        when(productRepository.findById(10L)).thenReturn(Optional.empty());
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L, 10L));
+    }
+
+    // deleteProduct - hotel mismatch
+    @Test
+    void deleteProduct_HotelMismatch() {
+        Hotel otherHotel = new Hotel();
+        otherHotel.setHotelId(2L);
+        product.setHotel(otherHotel);
+
+        when(productRepository.findById(10L)).thenReturn(Optional.of(product));
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L, 10L));
     }
 }

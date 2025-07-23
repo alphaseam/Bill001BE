@@ -67,13 +67,19 @@ class SalesReportServiceImplTest {
         assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(6, null));
     }
 
-    // 4. Monthly Product Sales - Invalid Month
+    // 4. Monthly Product Sales - Invalid High Month
     @Test
     void testGetMonthlyProductSalesReport_InvalidMonth_ThrowsException() {
         assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(13, 2025));
     }
 
-    // 5. Daily Sales - Valid Dates
+    // 5. Monthly Product Sales - Invalid Low Month
+    @Test
+    void testGetMonthlyProductSalesReport_LowMonth_ThrowsException() {
+        assertThrows(BadRequestException.class, () -> salesReportService.getMonthlyProductSalesReport(0, 2025));
+    }
+
+    // 6. Daily Sales - Valid Dates
     @Test
     void testGetDailySales_Success() {
         LocalDate from = LocalDate.of(2025, 7, 1);
@@ -88,13 +94,13 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 6. Daily Sales - Invalid Date Format
+    // 7. Daily Sales - Invalid Date Format
     @Test
     void testGetDailySales_InvalidDateFormat_ThrowsException() {
         assertThrows(BadRequestException.class, () -> salesReportService.getDailySales("2025-15-01", "2025-07-05"));
     }
 
-    // 7. Monthly Sales - Valid Year
+    // 8. Monthly Sales - Valid Year
     @Test
     void testGetMonthlySales_Success() {
         LocalDate from = LocalDate.of(2025, 1, 1);
@@ -109,7 +115,7 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 8. Monthly Sales - Null Year (Default to current year)
+    // 9. Monthly Sales - Null Year (Default to current year)
     @Test
     void testGetMonthlySales_NullYear_UsesCurrentYear() {
         int year = LocalDate.now().getYear();
@@ -125,7 +131,7 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 9. Yearly Sales - Valid Range
+    // 10. Yearly Sales - Valid Range
     @Test
     void testGetYearlySales_Success() {
         LocalDate from = LocalDate.of(2020, 1, 1);
@@ -140,7 +146,7 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 10. Yearly Sales - Null Years (Default to current)
+    // 11. Yearly Sales - Null Years (Default to current year)
     @Test
     void testGetYearlySales_NullYears_UseCurrent() {
         int year = LocalDate.now().getYear();
@@ -156,7 +162,7 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 11. Daily Sales - Null Inputs (Use today’s date)
+    // 12. Daily Sales - Null Inputs (Use today’s date)
     @Test
     void testGetDailySales_NullDates_UseToday() {
         LocalDate today = LocalDate.now();
@@ -170,7 +176,7 @@ class SalesReportServiceImplTest {
         assertEquals(dummyTransactions, response.getTotalTransactions());
     }
 
-    // 12. Daily Sales - Revenue or Transactions Null Should Default to Zero
+    // 13. Daily Sales - Revenue or Transactions Null Should Default to Zero
     @Test
     void testGetDailySales_NullValues_DefaultToZero() {
         LocalDate from = LocalDate.of(2025, 7, 1);
@@ -185,4 +191,3 @@ class SalesReportServiceImplTest {
         assertEquals(0L, response.getTotalTransactions());
     }
 }
-

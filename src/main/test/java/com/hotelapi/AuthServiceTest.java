@@ -40,39 +40,43 @@ public class AuthServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        sampleUser = new User(1L, "test@example.com", "encodedPassword");
+
+        sampleUser = new User();
+        sampleUser.setId(1L);
+        sampleUser.setEmail("test@example.com");
+        sampleUser.setPassword("encodedPassword");
 
         loginForm = new LoginRequest();
         loginForm.setEmail("test@example.com");
         loginForm.setPassword("password");
     }
 
-    @DisplayName("Test case for Successfull Login")
+    @DisplayName("Test case for Successful Login")
     @Test
     void testSuccessfulLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.of(sampleUser));
         when(passwordEncoder.matches(loginForm.getPassword(), sampleUser.getPassword())).thenReturn(true);
+        when(jwtService.generateAccessToken(sampleUser.getEmail())).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(sampleUser.getEmail())).thenReturn("refresh-token");
 
         LoginResponse response = authService.login(loginForm);
-        //System.out.print(response);
 
         assertTrue(response.isSuccess());
         assertEquals("Login successful", response.getMessage());
-        assertNotNull(response.getAccessToken());
-        assertNotNull(response.getRefreshToken());
+        assertEquals("access-token", response.getAccessToken());
+        assertEquals("refresh-token", response.getRefreshToken());
     }
 
-    @DisplayName("Test case for Invali Email Login")
+    @DisplayName("Test case for Invalid Email Login")
     @Test
     void testInvalidEmailOnLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> authService.login(loginForm));
-        //System.out.println(ex.getMessage());
         assertEquals("Invalid email or password", ex.getMessage());
     }
 
-    @DisplayName("Test case for Wrong password login")
+    @DisplayName("Test case for Wrong Password Login")
     @Test
     void testWrongPasswordOnLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.of(sampleUser));
@@ -82,11 +86,13 @@ public class AuthServiceTest {
         assertEquals("Invalid email or password", ex.getMessage());
     }
 
-    @DisplayName("Test case for Token is Return After Login")
+    @DisplayName("Test case for Token is Returned After Login")
     @Test
     void testTokenIsReturnedAfterLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.of(sampleUser));
         when(passwordEncoder.matches(loginForm.getPassword(), sampleUser.getPassword())).thenReturn(true);
+        when(jwtService.generateAccessToken(sampleUser.getEmail())).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(sampleUser.getEmail())).thenReturn("refresh-token");
 
         LoginResponse response = authService.login(loginForm);
 
@@ -94,7 +100,7 @@ public class AuthServiceTest {
         assertNotNull(response.getRefreshToken());
     }
 
-    @DisplayName("Test case for Successfull Registration")
+    @DisplayName("Test case for Successful Registration")
     @Test
     void testSuccessfulRegistration() {
         RegisterRequest registerRequest = new RegisterRequest();
@@ -110,7 +116,7 @@ public class AuthServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
-    @DisplayName("Test case for  duplicate email on registration")
+    @DisplayName("Test case for Duplicate Email on Registration")
     @Test
     void testDuplicateEmailOnRegistration() {
         RegisterRequest registerRequest = new RegisterRequest();
@@ -123,7 +129,7 @@ public class AuthServiceTest {
         assertEquals("Email already in use", ex.getMessage());
     }
 
-    @DisplayName("Test case for jwt not generated for failed login")
+    @DisplayName("Test case for JWT Not Generated on Failed Login")
     @Test
     void testJwtNotGeneratedForFailedLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.of(sampleUser));
@@ -135,11 +141,13 @@ public class AuthServiceTest {
         verify(jwtService, never()).generateRefreshToken(any());
     }
 
-    @DisplayName("Test case for verify method call order on login")
+    @DisplayName("Test case for Verify Method Call Order on Login")
     @Test
     void testVerifyMethodCallOrderOnLogin() {
         when(userRepository.findByEmail(loginForm.getEmail())).thenReturn(Optional.of(sampleUser));
         when(passwordEncoder.matches(loginForm.getPassword(), sampleUser.getPassword())).thenReturn(true);
+        when(jwtService.generateAccessToken(any())).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(any())).thenReturn("refresh-token");
 
         authService.login(loginForm);
 
@@ -148,4 +156,3 @@ public class AuthServiceTest {
         inOrder.verify(passwordEncoder).matches(loginForm.getPassword(), sampleUser.getPassword());
     }
 }
-

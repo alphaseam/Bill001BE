@@ -3,7 +3,9 @@ package com.hotelapi;
 import com.hotelapi.entity.User;
 import com.hotelapi.repository.UserRepository;
 import com.hotelapi.service.CustomUserDetailsService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,37 +16,28 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for CustomUserDetailsService.
- * Tests user loading logic with mocked UserRepository.
- */
 @ExtendWith(MockitoExtension.class)
 public class CustomUserDetailsServiceTest {
 
     @Mock
-    private UserRepository userRepository; // Mocked dependency
+    private UserRepository userRepository;
 
     @InjectMocks
-    private CustomUserDetailsService userDetailsService; // Class under test
+    private CustomUserDetailsService userDetailsService;
 
     private User testUser;
 
-
-     // Initializes test data before each test.
-
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         testUser = new User();
         testUser.setId(1L);
         testUser.setEmail("test@example.com");
         testUser.setPassword("password123");
     }
 
-
-     // Test successful loading of user by email.
-
     @Test
-    public void testLoadUserByUsername_Success() {
+    @DisplayName("Should load user successfully by email")
+    void testLoadUserByUsername_Success() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
@@ -56,45 +49,38 @@ public class CustomUserDetailsServiceTest {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
     }
 
-    // Test user not found scenario should throw UsernameNotFoundException.
-
     @Test
-    public void testLoadUserByUsername_UserNotFound() {
+    @DisplayName("Should throw exception when user not found")
+    void testLoadUserByUsername_UserNotFound() {
         when(userRepository.findByEmail("notfound@example.com")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () ->
                 userDetailsService.loadUserByUsername("notfound@example.com"));
     }
 
-
-     // Test that the returned UserDetails has the correct username.
-
     @Test
-    public void testUserDetails_HasCorrectUsername() {
+    @DisplayName("Returned UserDetails should have correct username")
+    void testUserDetails_HasCorrectUsername() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
 
-        assertEquals(testUser.getEmail(), userDetails.getUsername());
+        assertEquals("test@example.com", userDetails.getUsername());
     }
 
-
-    //  Test that the returned UserDetails has the correct password.
-
     @Test
-    public void testUserDetails_HasCorrectPassword() {
+    @DisplayName("Returned UserDetails should have correct password")
+    void testUserDetails_HasCorrectPassword() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
 
-        assertEquals(testUser.getPassword(), userDetails.getPassword());
+        assertEquals("password123", userDetails.getPassword());
     }
 
-
-     // Test that the returned UserDetails has the "ROLE_USER" authority.
-
     @Test
-    public void testUserDetails_RoleIsUser() {
+    @DisplayName("Returned UserDetails should contain ROLE_USER authority")
+    void testUserDetails_RoleIsUser() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
@@ -103,32 +89,25 @@ public class CustomUserDetailsServiceTest {
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER")));
     }
 
-
-     // Test that passing null email throws UsernameNotFoundException.
-
     @Test
-    public void testLoadUserByUsername_NullEmail_ShouldThrowException() {
-        assertThrows(UsernameNotFoundException.class, () -> {
-            userDetailsService.loadUserByUsername(null);
-        });
+    @DisplayName("Null email should throw UsernameNotFoundException")
+    void testLoadUserByUsername_NullEmail_ShouldThrowException() {
+        assertThrows(UsernameNotFoundException.class, () ->
+                userDetailsService.loadUserByUsername(null));
     }
 
-
-     // Test that empty email string throws UsernameNotFoundException.
-
     @Test
-    public void testLoadUserByUsername_EmptyEmail_ShouldThrowException() {
+    @DisplayName("Empty email should throw UsernameNotFoundException")
+    void testLoadUserByUsername_EmptyEmail_ShouldThrowException() {
         when(userRepository.findByEmail("")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () ->
                 userDetailsService.loadUserByUsername(""));
     }
 
-
-     // Verify repository is called exactly once during user loading.
-
     @Test
-    public void testLoadUserByUsername_CallsRepositoryExactlyOnce() {
+    @DisplayName("Repository should be called exactly once")
+    void testLoadUserByUsername_CallsRepositoryExactlyOnce() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
 
         userDetailsService.loadUserByUsername("test@example.com");
@@ -136,11 +115,9 @@ public class CustomUserDetailsServiceTest {
         verify(userRepository, times(1)).findByEmail("test@example.com");
     }
 
-
-     // Test loading user with different email works as expected.
-
     @Test
-    public void testLoadUserByUsername_WithDifferentEmail() {
+    @DisplayName("Should load user with different email correctly")
+    void testLoadUserByUsername_WithDifferentEmail() {
         testUser.setEmail("different@example.com");
         when(userRepository.findByEmail("different@example.com")).thenReturn(Optional.of(testUser));
 
@@ -149,11 +126,9 @@ public class CustomUserDetailsServiceTest {
         assertEquals("different@example.com", userDetails.getUsername());
     }
 
-
-     // Ensure exception thrown has the correct message.
-
     @Test
-    public void testLoadUserByUsername_ThrowsExactMessage() {
+    @DisplayName("Exception should have exact message when user not found")
+    void testLoadUserByUsername_ThrowsExactMessage() {
         String email = "notfound@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 

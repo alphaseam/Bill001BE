@@ -18,28 +18,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class) // Enables Mockito annotations
 class WhatsAppServiceImplTest {
 
-    @Mock
+    @Mock // Mock Twilio configuration
     private TwilioConfig twilioConfig;
 
-    @Mock
+    @Mock // Mock WhatsApp log repository
     private WhatsAppLogRepository logRepository;
 
-    @Mock
+    @Mock // Mock Twilio message creator
     private MessageCreator messageCreator;
 
-    @Mock
+    @Mock // Mock Twilio message object
     private Message mockMessage;
 
-    @InjectMocks
+    @InjectMocks // Inject mocks into WhatsAppServiceImpl
     private WhatsAppServiceImpl whatsAppService;
 
     private WhatsAppMessageRequest request;
 
-    // Initializes the test data and lenient config
-    @BeforeEach
+    @BeforeEach // Setup test data before each test
     void setUp() {
         request = WhatsAppMessageRequest.builder()
                 .customerName("Ravi Sharma")
@@ -52,11 +51,11 @@ class WhatsAppServiceImplTest {
         lenient().when(twilioConfig.getWhatsappFrom()).thenReturn("whatsapp:+14155238886");
     }
 
-    // Test: Successful WhatsApp message sending
+    // Test sending WhatsApp message successfully
     @Test
     void testSendMessage_success() {
         when(logRepository.existsByBillIdAndStatus(101L, "SENT")).thenReturn(false);
-        when(mockMessage.getStatus()).thenReturn(Message.Status.DELIVERED); // Simulate success
+        when(mockMessage.getStatus()).thenReturn(Message.Status.DELIVERED);
 
         try (MockedStatic<Message> mockedStatic = mockStatic(Message.class)) {
             mockedStatic.when(() ->
@@ -67,7 +66,7 @@ class WhatsAppServiceImplTest {
 
             boolean result = whatsAppService.sendMessage(request);
 
-            assertTrue(result);
+            assertTrue(result); // Message should be sent successfully
             verify(logRepository).save(argThat(log ->
                     log.getCustomerName().equals("Ravi Sharma") &&
                             log.getStatus().equals("SENT")
@@ -75,16 +74,18 @@ class WhatsAppServiceImplTest {
         }
     }
 
-    // Test: Message already sent should return false and not send again
+    // Test skipping message if already sent
     @Test
     void testSendMessage_alreadySent_returnsFalse() {
         when(logRepository.existsByBillIdAndStatus(101L, "SENT")).thenReturn(true);
+
         boolean result = whatsAppService.sendMessage(request);
-        assertFalse(result);
-        verify(logRepository, never()).save(any());
+
+        assertFalse(result); // No duplicate message should be sent
+        verify(logRepository, never()).save(any()); // No log saved
     }
 
-    // Test: Message send fails (Twilio returns FAILED status)
+    // Test when Twilio returns FAILED status
     @Test
     void testSendMessage_twilioFails_logsFailure() {
         when(logRepository.existsByBillIdAndStatus(101L, "SENT")).thenReturn(false);
@@ -99,12 +100,12 @@ class WhatsAppServiceImplTest {
 
             boolean result = whatsAppService.sendMessage(request);
 
-            assertFalse(result);
+            assertFalse(result); // Should return false on failure
             verify(logRepository).save(argThat(log -> log.getStatus().equals("FAILED")));
         }
     }
 
-    // Test: Exception thrown while sending message should be logged as failure
+    // Test when Twilio throws an exception
     @Test
     void testSendMessage_twilioThrowsException_logsFailure() {
         when(logRepository.existsByBillIdAndStatus(101L, "SENT")).thenReturn(false);
@@ -118,7 +119,7 @@ class WhatsAppServiceImplTest {
 
             boolean result = whatsAppService.sendMessage(request);
 
-            assertFalse(result);
+            assertFalse(result); // Should handle exception gracefully
             verify(logRepository).save(argThat(log ->
                     log.getStatus().equals("FAILED") &&
                             log.getError().contains("Twilio error")
@@ -126,56 +127,56 @@ class WhatsAppServiceImplTest {
         }
     }
 
-    // Test: Format plain 10-digit number
+    // Test formatting plain Indian number
     @Test
     void testFormatIndianNumber_withPlainNumber() {
         String result = invokeFormat("9876543210");
         assertEquals("+919876543210", result);
     }
 
-    // Test: Format number with +91 prefix
+    // Test formatting number already with +91
     @Test
     void testFormatIndianNumber_with91Prefix() {
         String result = invokeFormat("+919876543210");
         assertEquals("+919876543210", result);
     }
 
-    // Test: Format number with 0 prefix
+    // Test formatting number with leading 0
     @Test
     void testFormatIndianNumber_with0Prefix() {
         String result = invokeFormat("09876543210");
         assertEquals("+919876543210", result);
     }
 
-    // Test: Format number with other country code
+    // Test formatting number with other country code
     @Test
     void testFormatIndianNumber_withOtherCountryCode() {
         String result = invokeFormat("+441234567890");
         assertEquals("+441234567890", result);
     }
 
-    // Test: Format number with spaces
+    // Test formatting number with spaces
     @Test
     void testFormatIndianNumber_withSpaces() {
         String result = invokeFormat(" 98765 43210 ");
         assertEquals("+919876543210", result);
     }
 
-    // Test: Format empty input
+    // Test formatting when input is empty
     @Test
     void testFormatIndianNumber_emptyInput() {
         String result = invokeFormat("");
         assertEquals("", result);
     }
 
-    // Test: Format null input
+    // Test formatting when input is null
     @Test
     void testFormatIndianNumber_nullInput() {
         String result = invokeFormat(null);
         assertEquals("", result);
     }
 
-    // Helper method to invoke private phone number formatting logic via reflection
+    // Utility method to call private formatIndianMobileNumber method
     private String invokeFormat(String number) {
         try {
             var method = WhatsAppServiceImpl.class.getDeclaredMethod("formatIndianMobileNumber", String.class);
