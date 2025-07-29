@@ -1,12 +1,11 @@
 package com.hotelapi.controller;
 
-import com.hotelapi.dto.LoginRequest;
-import com.hotelapi.dto.LoginResponse;
-import com.hotelapi.dto.RegisterRequest;
-import com.hotelapi.dto.RegisterResponse;
+import com.hotelapi.dto.*;
 import com.hotelapi.entity.User;
 import com.hotelapi.repository.UserRepository;
+import com.hotelapi.service.AuthService;
 import com.hotelapi.service.JwtService;
+
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +28,16 @@ public class LoginController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public LoginController(JwtService jwtService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginController(JwtService jwtService,
+                           UserRepository userRepository,
+                           PasswordEncoder passwordEncoder,
+                           AuthService authService) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
     }
 
     @Operation(summary = "Register a new user")
@@ -79,4 +83,35 @@ public class LoginController {
         return ResponseEntity.status(401).body(new LoginResponse(
                 false, "Invalid email or password", null, null));
     }
+
+    @Operation(summary = "Send OTP to user's email")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OTP sent successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid email or too many attempts")
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.sendOtp(request));
+    }
+
+    @Operation(summary = "Verify OTP for password reset")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OTP verified"),
+        @ApiResponse(responseCode = "400", description = "Invalid or expired OTP")
+    })
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        return ResponseEntity.ok(authService.verifyOtp(request));
+    }
+
+    @Operation(summary = "Reset password using OTP")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Password reset successful"),
+        @ApiResponse(responseCode = "400", description = "OTP expired or invalid")
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
+    }
 }
+
