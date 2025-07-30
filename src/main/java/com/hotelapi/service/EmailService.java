@@ -1,8 +1,64 @@
+//package com.hotelapi.service;
+//
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.mail.javamail.JavaMailSender;
+//import org.springframework.mail.SimpleMailMessage;
+//import org.springframework.stereotype.Service;
+//
+//@Service
+//@RequiredArgsConstructor
+//public class EmailService {
+//
+//    private final JavaMailSender mailSender;
+
+//    public void sendOtpEmail(String to, String otp, int expiryMinutes) {
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(to);
+//        message.setSubject("Password Reset OTP");
+//        message.setText("Your OTP is: " + otp + "\n\n"
+//            + "It will expire in " + expiryMinutes + " minutes.\n"
+//            + "Do not share this code with anyone.");
+//
+//        mailSender.send(message);
+//    }
+
+    
+    
+//    public void sendOtpEmail(String to, String otp, int expiryMinutes) {
+//        try {
+//            SimpleMailMessage message = new SimpleMailMessage();
+//            message.setTo(to);
+//            message.setSubject("Password Reset OTP");
+//            message.setText("Your OTP is: " + otp + "\n\n"
+//                + "It will expire in " + expiryMinutes + " minutes.\n"
+//                + "Do not share this code with anyone.");
+//
+//            mailSender.send(message);
+//            System.out.println("Email sent to: " + to);
+//        } catch (Exception e) {
+//            System.err.println("Failed to send email to: " + to);
+//            e.printStackTrace();
+//        }
+//    }
+
+	
+//}
+
+
+
+
+
+
+
+
+
 package com.hotelapi.service;
 
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,15 +68,31 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     public void sendOtpEmail(String to, String otp, int expiryMinutes) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Password Reset OTP");
-        message.setText("Your OTP is: " + otp + "\n\n"
-            + "It will expire in " + expiryMinutes + " minutes.\n"
-            + "Do not share this code with anyone.");
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        mailSender.send(message);
+            // ✅ Set recipient
+            helper.setTo(to);
+
+            // ✅ Set subject
+            helper.setSubject("Password Reset OTP");
+
+            // ✅ Set plain text body
+            String body = "Your OTP is: " + otp + "\n\n"
+                    + "It will expire in " + expiryMinutes + " minutes.\n"
+                    + "Do not share this code with anyone.";
+            helper.setText(body, false); // false = plain text
+
+            // ✅ Set from address with display name
+            helper.setFrom(new InternetAddress("testing@alphaseam.com", "AlphaSeam Support"));
+
+            mailSender.send(message);
+            System.out.println("Email sent to: " + to);
+        } catch (Exception e) {
+            System.err.println("Failed to send email to: " + to);
+            e.printStackTrace();
+        }
     }
-
-	
 }
+

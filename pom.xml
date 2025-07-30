@@ -131,11 +131,7 @@
             <version>5.18.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-        	<groupId>com.GTA</groupId>
-        	<artifactId>lms</artifactId>
-        	<version>0.0.1-SNAPSHOT</version>
-        </dependency>
+        
     </dependencies>
 
     <build>
