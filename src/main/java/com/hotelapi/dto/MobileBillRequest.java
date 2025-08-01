@@ -7,6 +7,7 @@ import java.util.List;
 public class MobileBillRequest {
     private String customerName;
     private String mobileNumber;
+    private Long hotelId;
     private List<Item> items;
 
     @Data

@@ -21,6 +21,9 @@ public class BillDto {
     @Schema(description = "ID of the customer making the purchase", example = "501")
     private Long customerId;
 
+    @Schema(description = "ID of the hotel for this bill", example = "1")
+    private Long hotelId;
+
     @Schema(description = "List of items included in this bill")
     private List<BillItemDto> items;
 

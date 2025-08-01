@@ -1,6 +1,7 @@
 package com.hotelapi.service;
 
 import com.hotelapi.entity.Bill;
+import com.hotelapi.entity.Hotel;
 import com.hotelapi.repository.BillRepository;
 import com.hotelapi.util.PdfUtility;
 import com.itextpdf.text.*;
@@ -51,19 +52,19 @@ public class InvoiceService {
         PdfWriter.getInstance(document, new FileOutputStream(filePath));
         document.open();
 
-        addHeader(document);
+        addHeader(document, bill.getHotel());
         addCustomerDetails(document, bill);
         addBillTable(document, bill);
         addTotals(document, bill);
-        addFooter(document);
+        addFooter(document, bill.getHotel());
 
         document.close();
 
         return filePath;
     }
 
-private void addHeader(Document doc) throws DocumentException, IOException {
-    PdfUtility.addBusinessHeader(doc, "static/logo.png");
+private void addHeader(Document doc, Hotel hotel) throws DocumentException, IOException {
+    PdfUtility.addBusinessHeader(doc, "static/logo.png", hotel);
 }
 
     private void addCustomerDetails(Document doc, Bill bill) throws DocumentException {
@@ -123,7 +124,7 @@ private void addHeader(Document doc) throws DocumentException, IOException {
         doc.add(totalTable);
     }
 
-    private void addFooter(Document doc) throws DocumentException {
-        PdfUtility.addThankYouFooter(doc);
+    private void addFooter(Document doc, Hotel hotel) throws DocumentException {
+        PdfUtility.addThankYouFooter(doc, hotel);
     }
 }

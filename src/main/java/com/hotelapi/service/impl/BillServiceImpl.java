@@ -38,16 +38,20 @@ public class BillServiceImpl implements BillService {
     private final ProductRepository productRepository;
     private final InvoiceService invoiceService;
     private final WhatsAppService whatsAppService;
+    private final HotelRepository hotelRepository;
 
     @Override
     @Transactional
     public Bill createBill(BillDto dto) {
-        if (dto.getCustomerId() == null || dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new InvalidInputException("Customer ID and at least one bill item are required.");
+        if (dto.getCustomerId() == null || dto.getHotelId() == null || dto.getItems() == null || dto.getItems().isEmpty()) {
+            throw new InvalidInputException("Customer ID, Hotel ID, and at least one bill item are required.");
         }
 
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new InvalidInputException("Customer not found: ID " + dto.getCustomerId()));
+
+        Hotel hotel = hotelRepository.findById(dto.getHotelId())
+                .orElseThrow(() -> new InvalidInputException("Hotel not found: ID " + dto.getHotelId()));
 
         List<BillItem> billItems = new ArrayList<>();
         double subtotal = 0;
@@ -55,6 +59,11 @@ public class BillServiceImpl implements BillService {
         for (BillItemDto itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new InvalidInputException("Product not found: ID " + itemDto.getProductId()));
+
+            // Validate that the product belongs to the selected hotel
+            if (!product.getHotel().getHotelId().equals(hotel.getHotelId())) {
+                throw new InvalidInputException("Product '" + product.getProductName() + "' does not belong to hotel '" + hotel.getHotelName() + "'");
+            }
 
             if (itemDto.getQuantity() <= 0) {
                 throw new InvalidInputException("Quantity must be positive for product ID " + itemDto.getProductId());
@@ -80,6 +89,7 @@ public class BillServiceImpl implements BillService {
                 .billNumber("INV-" + System.currentTimeMillis())
                 .createdAt(LocalDateTime.now())
                 .customer(customer)
+                .hotel(hotel)
                 .items(billItems)
                 .subtotal(subtotal)
                 .tax(tax)
@@ -240,6 +250,13 @@ public class BillServiceImpl implements BillService {
             throw new InvalidInputException("Customer mobile number is required.");
         }
 
+        // Validate hotel if provided (optional for mobile bills)
+        Hotel hotel = null;
+        if (request.getHotelId() != null) {
+            hotel = hotelRepository.findById(request.getHotelId())
+                    .orElseThrow(() -> new InvalidInputException("Hotel not found: ID " + request.getHotelId()));
+        }
+
         Customer customer = customerRepository.findByMobile(request.getMobileNumber())
                 .orElseGet(() -> Customer.builder()
                         .name(request.getCustomerName())
@@ -278,6 +295,7 @@ public class BillServiceImpl implements BillService {
                 .billNumber("MBL-" + System.currentTimeMillis())
                 .createdAt(LocalDateTime.now())
                 .customer(customer)
+                .hotel(hotel)
                 .items(billItems)
                 .subtotal(subtotal)
                 .tax(tax)

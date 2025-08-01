@@ -37,6 +37,11 @@ public class Bill {
     @Schema(description = "User associated with this bill")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "hotel_id")
+    @Schema(description = "Hotel associated with this bill")
+    private Hotel hotel;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Schema(description = "List of items in the bill")

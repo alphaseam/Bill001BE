@@ -1,5 +1,6 @@
 package com.hotelapi.util;
 
+import com.hotelapi.entity.Hotel;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import org.springframework.core.io.ClassPathResource;
@@ -19,7 +20,7 @@ public class PdfUtility {
      * @param logoPath classpath location of the logo (e.g., "static/logo.png")
      * @throws DocumentException in case of PDF writing errors
      */
-    public static void addBusinessHeader(Document doc, String logoPath) throws DocumentException {
+    public static void addBusinessHeader(Document doc, String logoPath, Hotel hotel) throws DocumentException {
         try {
             ClassPathResource resource = new ClassPathResource(logoPath);
 
@@ -33,18 +34,18 @@ public class PdfUtility {
                 }
             } else {
                 System.err.println("⚠️ Logo not found at: " + logoPath + " — using text fallback.");
-                addFallbackTitle(doc);
+                addFallbackTitle(doc, hotel);
             }
         } catch (Exception e) {
             System.err.println("⚠️ Error loading logo from path [" + logoPath + "]: " + e.getMessage());
-            addFallbackTitle(doc);
+            addFallbackTitle(doc, hotel);
         }
 
         // Business details below logo/text
         Paragraph contact = new Paragraph(
-                "Hotel Royal Palace\n" +
-                        "123, Main Road, City, State - 123456\n" +
-                        "Phone: +91-9876543210 | Email: contact@hotelroyal.com",
+                hotel.getHotelName() + "\n" +
+                hotel.getAddress() + "\n" +
+                "Phone: " + hotel.getMobile() + " | Email: " + hotel.getEmail(),
                 FontFactory.getFont(FontFactory.HELVETICA, 10)
         );
         contact.setAlignment(Element.ALIGN_CENTER);
@@ -58,8 +59,8 @@ public class PdfUtility {
      * @param doc the PDF document
      * @throws DocumentException if the document can't be written
      */
-    private static void addFallbackTitle(Document doc) throws DocumentException {
-        Paragraph title = new Paragraph("HOTEL ROYAL PALACE",
+    private static void addFallbackTitle(Document doc, Hotel hotel) throws DocumentException {
+        Paragraph title = new Paragraph(hotel.getHotelName().toUpperCase(),
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
         title.setAlignment(Element.ALIGN_CENTER);
         doc.add(title);
@@ -99,10 +100,10 @@ public class PdfUtility {
      * @param doc the PDF document
      * @throws DocumentException if the document can't be written
      */
-    public static void addThankYouFooter(Document doc) throws DocumentException {
+    public static void addThankYouFooter(Document doc, Hotel hotel) throws DocumentException {
         doc.add(Chunk.NEWLINE);
         Paragraph thanks = new Paragraph(
-                "Thank you for choosing Hotel Royal Palace!",
+                "Thank you for choosing " + hotel.getHotelName() + "!",
                 FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10));
         thanks.setAlignment(Element.ALIGN_CENTER);
         doc.add(thanks);
