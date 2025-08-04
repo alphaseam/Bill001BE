@@ -43,12 +43,26 @@ public class BillServiceImpl implements BillService {
     @Override
     @Transactional
     public Bill createBill(BillDto dto) {
-        if (dto.getCustomerId() == null || dto.getHotelId() == null || dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new InvalidInputException("Customer ID, Hotel ID, and at least one bill item are required.");
+        if (dto.getCustomerName() == null || dto.getCustomerName().isBlank()) {
+            throw new InvalidInputException("Customer name is required.");
         }
 
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new InvalidInputException("Customer not found: ID " + dto.getCustomerId()));
+        if (dto.getCustomerMobile() == null || dto.getCustomerMobile().isBlank()) {
+            throw new InvalidInputException("Customer mobile number is required.");
+        }
+
+        if (dto.getHotelId() == null || dto.getItems() == null || dto.getItems().isEmpty()) {
+            throw new InvalidInputException("Hotel ID and at least one bill item are required.");
+        }
+
+        Customer customer = customerRepository.findByMobile(dto.getCustomerMobile())
+                .orElseGet(() -> {
+                    Customer newCustomer = Customer.builder()
+                            .name(dto.getCustomerName())
+                            .mobile(dto.getCustomerMobile())
+                            .build();
+                    return customerRepository.save(newCustomer);
+                });
 
         Hotel hotel = hotelRepository.findById(dto.getHotelId())
                 .orElseThrow(() -> new InvalidInputException("Hotel not found: ID " + dto.getHotelId()));
@@ -62,7 +76,8 @@ public class BillServiceImpl implements BillService {
 
             // Validate that the product belongs to the selected hotel
             if (!product.getHotel().getHotelId().equals(hotel.getHotelId())) {
-                throw new InvalidInputException("Product '" + product.getProductName() + "' does not belong to hotel '" + hotel.getHotelName() + "'");
+                throw new InvalidInputException("Product '" + product.getProductName()
+                        + "' does not belong to hotel '" + hotel.getHotelName() + "'");
             }
 
             if (itemDto.getQuantity() <= 0) {
@@ -102,6 +117,9 @@ public class BillServiceImpl implements BillService {
         return createBillWithNotification(bill);
     }
 
+    
+    
+    
     public Bill createBillWithNotification(Bill bill) {
         Bill savedBill = billRepository.save(bill);
 

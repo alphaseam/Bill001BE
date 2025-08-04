@@ -18,9 +18,15 @@ import java.util.List;
 @Schema(description = "DTO representing a full bill including customer and item details")
 public class BillDto {
 
-    @Schema(description = "ID of the customer making the purchase", example = "501")
-    private Long customerId;
+//    @Schema(description = "ID of the customer making the purchase", example = "501")
+//    private Long customerId;
 
+	 @Schema(description = "Full name of the customer", example = "Rahul Patil", required = true)
+	 private String customerName;
+
+	 @Schema(description = "Mobile number of the customer", example = "9876543210", required = true)
+	 private String customerMobile;
+	    
     @Schema(description = "ID of the hotel for this bill", example = "1")
     private Long hotelId;
 
