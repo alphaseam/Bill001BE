@@ -35,6 +35,11 @@ public class BillItem {
 
     @ManyToOne
     @JoinColumn(name = "bill_id", nullable = false)
-    @JsonBackReference // Prevents infinite loop during serialization
+    @JsonBackReference 
     private Bill bill;
+    
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    @Schema(description = "Product associated with this bill item")
+    private Product product; 
 }

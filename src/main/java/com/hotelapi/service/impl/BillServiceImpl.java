@@ -69,12 +69,15 @@ public class BillServiceImpl implements BillService {
 
         List<BillItem> billItems = new ArrayList<>();
         double subtotal = 0;
+        
+        
+        
+        
 
         for (BillItemDto itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new InvalidInputException("Product not found: ID " + itemDto.getProductId()));
 
-            // Validate that the product belongs to the selected hotel
             if (!product.getHotel().getHotelId().equals(hotel.getHotelId())) {
                 throw new InvalidInputException("Product '" + product.getProductName()
                         + "' does not belong to hotel '" + hotel.getHotelName() + "'");
@@ -88,11 +91,13 @@ public class BillServiceImpl implements BillService {
             subtotal += itemTotal;
 
             billItems.add(BillItem.builder()
+            		
                     .itemName(product.getProductName())
                     .quantity(itemDto.getQuantity())
                     .unitPrice(itemDto.getPrice())
                     .discount(0.0)
                     .total(itemTotal)
+                    .product(product) //This sets productId via the product entity
                     .build());
         }
 
@@ -194,6 +199,7 @@ public class BillServiceImpl implements BillService {
                         .unitPrice(itemDto.getPrice())
                         .discount(0.0)
                         .total(itemTotal)
+                        .product(product) //This sets productId via the product entity
                         .bill(existingBill) // very important to re-link!
                         .build();
  
