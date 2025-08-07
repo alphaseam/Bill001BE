@@ -4,10 +4,12 @@ import com.hotelapi.dto.GenericResponse;
 import com.hotelapi.dto.HotelDto;
 import com.hotelapi.dto.HotelResponse;
 import com.hotelapi.entity.Hotel;
+import com.hotelapi.entity.Product;
 import com.hotelapi.exception.InvalidInputException;
 import com.hotelapi.exception.NoDataFoundException;
 import com.hotelapi.exception.ResourceNotFoundException;
 import com.hotelapi.repository.HotelRepository;
+import com.hotelapi.repository.ProductRepository;
 import com.hotelapi.service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class HotelServiceImpl implements HotelService {
 
     @Autowired
     private HotelRepository hotelRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public GenericResponse<HotelResponse> saveHotel(HotelDto dto) {
@@ -183,8 +188,36 @@ public class HotelServiceImpl implements HotelService {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
 
+        // Check if hotel has any associated products
+        List<Product> associatedProducts = productRepository.findByHotelHotelId(id);
+        if (!associatedProducts.isEmpty()) {
+            throw new InvalidInputException("Cannot delete hotel. Hotel has " + associatedProducts.size() + 
+                    " associated product(s). Please delete or transfer all products before deleting the hotel.");
+        }
+
         hotelRepository.delete(hotel);
         return GenericResponse.ok("Hotel deleted successfully", null);
+    }
+
+    @Override
+    public GenericResponse<String> forceDeleteHotelById(Long id) {
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
+
+        // Delete all associated products first
+        List<Product> associatedProducts = productRepository.findByHotelHotelId(id);
+        if (!associatedProducts.isEmpty()) {
+            productRepository.deleteAll(associatedProducts);
+        }
+
+        // Now delete the hotel
+        hotelRepository.delete(hotel);
+        
+        String message = associatedProducts.isEmpty() ? 
+            "Hotel deleted successfully" : 
+            "Hotel and " + associatedProducts.size() + " associated product(s) deleted successfully";
+        
+        return GenericResponse.ok(message, null);
     }
 
     private HotelResponse mapToResponse(Hotel hotel) {

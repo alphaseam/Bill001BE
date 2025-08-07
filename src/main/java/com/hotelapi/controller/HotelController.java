@@ -90,13 +90,25 @@ public class HotelController {
     }
 
     @DeleteMapping("/hotel/{id}")
-    @Operation(summary = "Delete hotel by ID", description = "Remove a hotel from the system using its ID")
+    @Operation(summary = "Delete hotel by ID", description = "Remove a hotel from the system using its ID. Hotel cannot be deleted if it has associated products.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Hotel deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Cannot delete hotel with associated products"),
             @ApiResponse(responseCode = "404", description = "Hotel not found")
     })
     public ResponseEntity<GenericResponse<String>> deleteHotel(@PathVariable Long id) {
         GenericResponse<String> response = hotelService.deleteHotelById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/hotel/{id}/force")
+    @Operation(summary = "Force delete hotel by ID", description = "Remove a hotel from the system along with all its associated products. Use with caution.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Hotel and associated products deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Hotel not found")
+    })
+    public ResponseEntity<GenericResponse<String>> forceDeleteHotel(@PathVariable Long id) {
+        GenericResponse<String> response = hotelService.forceDeleteHotelById(id);
         return ResponseEntity.ok(response);
     }
 }

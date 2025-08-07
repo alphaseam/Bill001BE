@@ -20,5 +20,7 @@ public interface HotelService {
 
     GenericResponse<String> deleteHotelById(Long id); // JIRA-004
 
+    GenericResponse<String> forceDeleteHotelById(Long id); // Force delete with cascading product deletion
+
     GenericResponse<HotelResponse> patchHotel(Long id, HotelDto hotelDto); // JIRA-005
 }
